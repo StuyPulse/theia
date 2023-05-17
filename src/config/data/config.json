@@ -1,0 +1,10 @@
+{
+    "device_id": "default",
+    "server_ip": "10.6.94.2",
+    "stream_port": "5802",
+    "calibrated": true,
+    "fiducial_size": 0.15,
+    "detection_dictionary": "APRILTAG_16H5",
+    "calibration_dictionary": "5X5_100",
+    "charuco_board": [12, 9, 0.03, 0.023]
+}
