@@ -21,8 +21,8 @@ class Capture:
         if config_a == None or config_b == None:
             return True
 
-        remote_a = config_a.remote_config
-        remote_b = config_b.remote_config
+        remote_a = config_a.remote
+        remote_b = config_b.remote
 
         return remote_a.camera_id != remote_b.camera_id or remote_a.camera_resolution_width != remote_b.camera_resolution_width or remote_a.camera_resolution_height != remote_b.camera_resolution_height or remote_a.camera_auto_exposure != remote_b.camera_auto_exposure or remote_a.camera_exposure != remote_b.camera_exposure or remote_a.camera_gain != remote_b.camera_gain
                 
@@ -81,14 +81,14 @@ class DefaultCapture(Capture):
 
         if self.video == None:
             print(str(datetime.now()) + " - Starting video capture")
-            # self.video = cv2.VideoCapture(config.remote_config.camera_id)
-            self.video = WebcamVideoStream(src=config.remote_config.camera_id).start()
-            self.video.set(cv2.CAP_PROP_FRAME_WIDTH, config.remote_config.camera_resolution_width)
-            self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, config.remote_config.camera_resolution_height)
+            # self.video = cv2.VideoCapture(config.remote.camera_id)
+            self.video = WebcamVideoStream(src=config.remote.camera_id).start()
+            self.video.set(cv2.CAP_PROP_FRAME_WIDTH, config.remote.camera_resolution_width)
+            self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, config.remote.camera_resolution_height)
             self.video.set(cv2.CAP_PROP_FPS, 60)
-            self.video.set(cv2.CAP_PROP_AUTO_EXPOSURE, config.remote_config.camera_auto_exposure)
-            self.video.set(cv2.CAP_PROP_EXPOSURE, config.remote_config.camera_exposure)
-            self.video.set(cv2.CAP_PROP_GAIN, config.remote_config.camera_gain)
+            self.video.set(cv2.CAP_PROP_AUTO_EXPOSURE, config.remote.camera_auto_exposure)
+            self.video.set(cv2.CAP_PROP_EXPOSURE, config.remote.camera_exposure)
+            self.video.set(cv2.CAP_PROP_GAIN, config.remote.camera_gain)
         
         self.last_config = config
 
