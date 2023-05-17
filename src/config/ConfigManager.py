@@ -30,14 +30,14 @@ FAMILY_DICTIONARY = {
     "APRILTAG_36H11": cv2.aruco.DICT_APRILTAG_36h11
 }
 
-class ConfigManager:
-    def __init__(self):
-        raise NotImplementedError
+# class ConfigManager:
+#     def __init__(self):
+#         raise NotImplementedError
     
-    def update(self, config: Config):
-        raise NotImplementedError
+#     def update(self, config: Config):
+#         raise NotImplementedError
     
-class FileConfigManager(ConfigManager):
+class FileConfigManager:
     config_file_name = "config.json"
     calibration_file_name = "calibration.json"
 
@@ -45,31 +45,40 @@ class FileConfigManager(ConfigManager):
         pass
     
     def update(self, config: Config) -> None:
-        with open(os.getcwd() + "/config/data" + self.config_file_name, "r") as config_file:
+        with open(os.getcwd() + "/src/config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
-            config.local.device_id = config_data["device_id"]
-            config.local.server_ip = config_data["server_ip"]
-            config.local.stream_port = config_data["stream_port"]
+        config.local.device_id = config_data["device_id"]
+        config.local.server_ip = config_data["server_ip"]
+        config.local.stream_port = config_data["stream_port"]
 
-            config.local.calibrated = config_data["calibrated"]
-            config.local.fiducial_size = config_data["fiducial_size"]
-            config.local.detection_dictionary = cv2.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["detection_dictionary"]])
-            config.local.calibration_dictionary = cv2.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["calibration_dictionary"]])
+        config.local.calibrated = config_data["calibrated"]
+        config.local.fiducial_size = config_data["fiducial_size"]
+        config.local.detection_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["detection_dictionary"]])
+        config.local.calibration_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["calibration_dictionary"]])
 
-            config.local.aruco_parameters = cv2.aruco.DetectorParameters()
+        config.local.aruco_parameters = cv2.aruco.DetectorParameters()
+        config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+        config.local.aruco_parameters.useAruco3Detection = True
+        config.local.aruco_parameters.adaptiveThreshWinSizeMin = 3
+        config.local.aruco_parameters.adaptiveThreshWinSizeMax = 7
+        config.local.aruco_parameters.adaptiveThreshWinSizeStep = 2
+        config.local.aruco_parameters.adaptiveThreshConstant = 10
+        config.local.aruco_parameters.cornerRefinementMaxIterations = 50
+        config.local.aruco_parameters.perspectiveRemoveIgnoredMarginPerCell = 0.1
+        config.local.aruco_parameters.minMarkerLengthRatioOriginalImg = 0.0000
 
-            cbp = config_data["charuco_board"]
-            config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1]), cbp[2], cbp[3], config.local.calibration_dictionary))
+        cbp = config_data["charuco_board"]
+        config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1])), cbp[2], cbp[3], config.local.calibration_dictionary)
 
-        with open(os.getcwd() + "/config/data/" + self.calibration_file_name, "r") as file:
+        with open(os.getcwd() + "/src/config/data/" + self.calibration_file_name, "r") as file:
             calibration = json.load(file)
             
         camera_matrix = numpy.asarray(calibration["camera_matrix"])
-        distortion_coefficients = numpy.asarray(calibration["distortion_coefficients"])
+        distortion_coefficient = numpy.asarray(calibration["distortion_coefficient"])
 
-        if type(camera_matrix) == numpy.ndarray and type(distortion_coefficients) == numpy.ndarray:
+        if type(camera_matrix) == numpy.ndarray and type(distortion_coefficient) == numpy.ndarray:
             config.local.camera_matrix = camera_matrix
-            config.local.distortion_coefficients = distortion_coefficients
+            config.local.distortion_coefficient = distortion_coefficient
             config.local.calibrated = True
 
         print("""
@@ -80,15 +89,15 @@ Configuration
         print("Device ID: " + config.local.device_id)
         print("Server IP: " + config.local.server_ip)
         print("Stream Port: " + str(config.local.stream_port))
-        print("Fiducial Size: " + str(config.local.fiducial_size_m) + " m")
+        print("Fiducial Size: " + str(config.local.fiducial_size) + " m")
         print("Detection Dictionary: " + str(config_data["detection_dictionary"]))
         print("Calibration Dictionary: " + str(config_data["calibration_dictionary"]))
         print("Calibrated: " + str(config.local.calibrated))
         print("Camera Matrix: " + str(config.local.camera_matrix))
-        print("Distortion Coefficients: " + str(config.local.distortion_coefficients))
+        print("Distortion Coefficients: " + str(config.local.distortion_coefficient))
         print("")
 
-class NTConfigManager(ConfigManager):
+class NTConfigManager:
     init_complete: bool = False
 
     camera_id_sub: IntegerSubscriber
@@ -102,13 +111,13 @@ class NTConfigManager(ConfigManager):
     def update(self, config: Config) -> None:
         if not self.init_complete:
             table = NetworkTableInstance.getDefault().getTable("/" + config.local.device_id + "/config")
-            self.camera_id_sub = table.getEntry("camera_id").subscribe(RemoteConfig.camera_id)
-            self.camera_resolution_width_sub = table.getEntry("camera_resolution_width").subscribe(RemoteConfig.camera_resolution_width)
-            self.camera_resolution_height_sub = table.getEntry("camera_resolution_height").subscribe(RemoteConfig.camera_resolution_height)
-            self.camera_auto_exposure_sub = table.getEntry("camera_auto_exposure").subscribe(RemoteConfig.camera_auto_exposure)
-            self.camera_exposure_sub = table.getEntry("camera_exposure").subscribe(RemoteConfig.camera_exposure)
-            self.camera_gain_sub = table.getEntry("camera_gain").subscribe(RemoteConfig.camera_gain)
-            self.fiducial_layout_sub = table.getEntry("fiducial_layout").subscribe(RemoteConfig.fiducial_layout)
+            self.camera_id_sub = table.getIntegerTopic("camera_id").subscribe(RemoteConfig.camera_id)
+            self.camera_resolution_width_sub = table.getIntegerTopic("camera_resolution_width").subscribe(RemoteConfig.camera_resolution_width)
+            self.camera_resolution_height_sub = table.getIntegerTopic("camera_resolution_height").subscribe(RemoteConfig.camera_resolution_height)
+            self.camera_auto_exposure_sub = table.getIntegerTopic("camera_auto_exposure").subscribe(RemoteConfig.camera_auto_exposure)
+            self.camera_exposure_sub = table.getIntegerTopic("camera_exposure").subscribe(RemoteConfig.camera_exposure)
+            self.camera_gain_sub = table.getDoubleTopic("camera_gain").subscribe(RemoteConfig.camera_gain)
+            self.fiducial_layout_sub = table.getDoubleArrayTopic("fiducial_layout").subscribe([])
             self.init_complete = True
 
             config.remote.camera_id = self.camera_id_sub.get()

@@ -15,11 +15,11 @@ class LocalConfig:
     charuco_board: any = None
 
     camera_matrix: numpy.typing.NDArray[numpy.float64] = None
-    distortion_coefficients: numpy.typing.NDArray[numpy.float64] = None
+    distortion_coefficient: numpy.typing.NDArray[numpy.float64] = None
 
 @dataclass
 class RemoteConfig:
-    camera_id: int = 1
+    camera_id: int = 0
     camera_resolution_width: int = 0
     camera_resolution_height: int = 0
     camera_auto_exposure: int = 0
