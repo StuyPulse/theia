@@ -1,4 +1,5 @@
 import cv2
+import numpy
 from config.Config import Config
 
 class Detector:
@@ -15,5 +16,5 @@ class FiducialDetector:
     def detect(self, image):
         corners, ids, rejected = self.detector.detectMarkers(image)
         if len(corners) > 0:
-            return corners, ids
-        return [], []
+            return numpy.asarray(corners), numpy.asarray(ids)
+        return numpy.asarray([]), numpy.asarray([])
