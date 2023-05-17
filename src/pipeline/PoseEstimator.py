@@ -38,3 +38,38 @@ class FiducialPoseEstimator(PoseEstimator):
             tvecs.append(tvec)
 
         return numpy.asarray(rvecs), numpy.asarray(tvecs)
+
+class CameraPoseEstimator:
+    def __init__(self):
+        pass
+    
+    def process(self, config: Config, rvecs, tvecs, ids):
+        # tag_poses = config.remote.tag_layout
+        tag_poses = {
+            0: [[0, 0, 0], [0, 0, 0]],
+            1: [[0, 0, 0], [0, 0, 0]],
+            2: [[0, 0, 0], [0, 0, 0]],
+            3: [[0, 0, 0], [0, 0, 0]],
+            4: [[0, 0, 0], [0, 0, 0]],
+            5: [[0, 0, 0], [0, 0, 0]],
+            6: [[0, 0, 0], [0, 0, 0]],
+            7: [[0, 0, 0], [0, 0, 0]],
+        }
+        alltvecs = []
+        allrvecs = []
+        for rvec, tvec in zip(rvecs, tvecs):
+            for i, id in enumerate(ids[0]):
+                if id in tag_poses:
+                    alltvecs.append([tag_poses[id][0][0] + tvec[0],
+                                      tag_poses[id][0][1] + tvec[1],
+                                      tag_poses[id][0][2] + tvec[2]])
+                    allrvecs.append([tag_poses[id][1][0] + rvec[0],
+                                     tag_poses[id][1][1] + rvec[1],
+                                     tag_poses[id][1][2] + rvec[2]])
+        
+        robot_pose = []
+        robot_pose.append(numpy.mean(alltvecs, axis=0))
+        robot_pose.append(numpy.mean(allrvecs, axis=0))
+        print(robot_pose)
+
+        return robot_pose
