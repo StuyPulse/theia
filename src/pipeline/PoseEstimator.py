@@ -58,18 +58,19 @@ class CameraPoseEstimator:
         alltvecs = []
         allrvecs = []
         for rvec, tvec in zip(rvecs, tvecs):
-            for i, id in enumerate(ids[0]):
-                if id in tag_poses:
-                    alltvecs.append([tag_poses[id][0][0] + tvec[0],
-                                      tag_poses[id][0][1] + tvec[1],
-                                      tag_poses[id][0][2] + tvec[2]])
-                    allrvecs.append([tag_poses[id][1][0] + rvec[0],
-                                     tag_poses[id][1][1] + rvec[1],
-                                     tag_poses[id][1][2] + rvec[2]])
-        
-        robot_pose = []
-        robot_pose.append(numpy.mean(alltvecs, axis=0))
-        robot_pose.append(numpy.mean(allrvecs, axis=0))
-        print(robot_pose)
+            if ids is not None and rvecs is not None and tvecs is not None:
+                for i, id in enumerate(ids[0]):
+                    if id in tag_poses:
+                        alltvecs.append([tag_poses[id][0][0] + tvec[0],
+                                        tag_poses[id][0][1] + tvec[1],
+                                        tag_poses[id][0][2] + tvec[2]])
+                        allrvecs.append([tag_poses[id][1][0] + rvec[0],
+                                        tag_poses[id][1][1] + rvec[1],
+                                        tag_poses[id][1][2] + rvec[2]])
 
-        return robot_pose
+        if len(alltvecs) != 0 and len(allrvecs) != 0:
+            robot_pose = []
+            robot_pose.append(numpy.mean(alltvecs, axis=0))
+            robot_pose.append(numpy.mean(allrvecs, axis=0))
+            return robot_pose
+        return None
