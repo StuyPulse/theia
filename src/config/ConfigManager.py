@@ -29,13 +29,6 @@ FAMILY_DICTIONARY = {
     "APRILTAG_36H10": cv2.aruco.DICT_APRILTAG_36h10,
     "APRILTAG_36H11": cv2.aruco.DICT_APRILTAG_36h11
 }
-
-# class ConfigManager:
-#     def __init__(self):
-#         raise NotImplementedError
-    
-#     def update(self, config: Config):
-#         raise NotImplementedError
     
 class FileConfigManager:
     config_file_name = "config.json"
