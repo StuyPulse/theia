@@ -18,7 +18,7 @@ while True:
     cv2.putText(image, "Captured Images: " + str(i), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     cv2.imshow("Capture", image)
     
-    if charucoCorners is not None and charucoIDs is not None and cv2.waitKey() == 0: # space
+    if charucoCorners is not None and charucoIDs is not None and cv2.waitKey() == 32: # space
         cv2.imwrite("/captures/" + time.now() + "_capture.png", image)
         images += 1
 
