@@ -9,7 +9,7 @@ import json
 import datetime
 
 images_path = os.getcwd() + "/captures"
-output_file_name = "calibration.json"
+output_file_name = "./src/config/data/calibration.json"
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100)
 board = cv2.aruco.CharucoBoard((12,9), 0.03, 0.023, dictionary)
 charucoDetector = cv2.aruco.CharucoDetector(board)
@@ -24,7 +24,6 @@ print("Starting calibration using images in " + images_path)
 
 for image in os.listdir(images_path):
     image = cv2.imread(images_path + "/" + image)
-    cv2.imshow("Image", image)
     charucoCorners, charucoIDs, markerCorners, markerIDs = charucoDetector.detectBoard(image)
     
     if charucoCorners is not None and charucoIDs is not None:
@@ -45,6 +44,7 @@ print(distortion_coefficient)
 output = {
     "number_of_images": i,
     "timestamp": str(datetime.datetime.now()),
+    "resolution": imsize,
     "camera_matrix": numpy.ndarray.tolist(camera_matrix),
     "distortion_coefficient": numpy.ndarray.tolist(distortion_coefficient)
 }
