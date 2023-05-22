@@ -27,16 +27,28 @@ stream = MJPGServer()
 stream.start(config)
 
 allPoses = []
+start_time = time.time()
+counter = 0
 
 while True:
+    pt_start_time = time.time()
+    counter += 1
+    
     frame = capture.getFrame(config)
     corners, ids = detector.detect(frame)
     frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
     rvecs, tvecs = pose_estimator.process(corners, ids)
     pose = camera_pose_estimator.process(config, rvecs, tvecs, ids)
+
+    if (time.time() - start_time) > 1 :
+        fps = counter / (time.time() - start_time)
+        start_time = time.time()
+        counter = 0
+    pt = time.time() - pt_start_time
+
     if pose is not None:
         allPoses.append(pose)
-    frame = annotator.annotate(frame, rvecs, tvecs, config)
+    frame = annotator.annotate(frame, rvecs, tvecs, fps, pt, config)
     stream.set_frame(frame)
 
     # cv2.imshow("Capture", frame)
