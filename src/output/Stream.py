@@ -1,6 +1,7 @@
 import socketserver
 import threading
 import time
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
 
@@ -31,20 +32,27 @@ class MJPGServer(StreamServer):
             <title>ARUCO Debug Stream</title>
             <style>
                 body {
-                    background-color: black;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #001111;
+                    font-family: sans-serif;
+                }
+
+                h1 {
+                    color: white;
+                    margin: 4rem;
                 }
 
                 img {
-                    position: absolute;
-                    left: 50%;
-                    top: 50%;
-                    transform: translate(-50%, -50%);
-                    max-width: 100%;
-                    max-height: 100%;
+                    max-width: 800px;
+                    max-height: 600px;
                 }
             </style>
         </head>
         <body>
+            <h1>ARUCO Stream</h1>
             <img src="stream.mjpg" />
         </body>
     </html>
@@ -97,11 +105,10 @@ class MJPGServer(StreamServer):
         server = self.StreamingServer((bytes("", "UTF8"), port), self._make_handler())
         server.serve_forever()
         
-        print("Stream server started on port " + str(port))
-
     def start(self, config: Config) -> None:
         threading.Thread(target=self._run, daemon=True, args=(config.local.stream_port,)).start()
+        print(str(datetime.now()) + " - Stream server started on port " + str(config.local.stream_port))
 
     def set_frame(self, frame: cv2.Mat) -> None:
-        self._frame = frame.copy()
+        self._frame = frame
         self._has_frame = True
