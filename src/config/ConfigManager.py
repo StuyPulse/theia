@@ -50,15 +50,8 @@ class FileConfigManager:
         config.local.calibration_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["calibration_dictionary"]])
 
         config.local.aruco_parameters = cv2.aruco.DetectorParameters()
-        config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
-        config.local.aruco_parameters.useAruco3Detection = True
-        config.local.aruco_parameters.adaptiveThreshWinSizeMin = 3
-        config.local.aruco_parameters.adaptiveThreshWinSizeMax = 7
-        config.local.aruco_parameters.adaptiveThreshWinSizeStep = 2
-        config.local.aruco_parameters.adaptiveThreshConstant = 10
-        config.local.aruco_parameters.cornerRefinementMaxIterations = 50
-        config.local.aruco_parameters.perspectiveRemoveIgnoredMarginPerCell = 0.1
-        config.local.aruco_parameters.minMarkerLengthRatioOriginalImg = 0.0000
+        # config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+        # config.local.aruco_parameters.useAruco3Detection = True
 
         cbp = config_data["charuco_board"]
         config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1])), cbp[2], cbp[3], config.local.calibration_dictionary)
