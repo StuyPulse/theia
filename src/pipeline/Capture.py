@@ -27,8 +27,18 @@ class Capture:
         return remote_a.camera_id != remote_b.camera_id or remote_a.camera_resolution_width != remote_b.camera_resolution_width or remote_a.camera_resolution_height != remote_b.camera_resolution_height or remote_a.camera_auto_exposure != remote_b.camera_auto_exposure or remote_a.camera_exposure != remote_b.camera_exposure or remote_a.camera_gain != remote_b.camera_gain
                 
 class WebcamVideoStream:
-    def __init__(self, src=0):
+    def __init__(self, config: Config, src=0):
         self.stream = cv2.VideoCapture(src)
+        self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc(*"MJPG"))
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1600)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1200)
+        self.stream.set(cv2.CAP_PROP_FPS, 50)
+        self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, config.remote.camera_auto_exposure)
+        self.stream.set(cv2.CAP_PROP_EXPOSURE, config.remote.camera_exposure)
+        self.stream.set(cv2.CAP_PROP_GAIN, config.remote.camera_gain)
+        # self.stream.set(cv2.CAP_PROP_GAMMA, config.remote.camera_gamma)
+        # self.stream.set(cv2.CAP_PROP_BRIGHTNESS, config.remote.camera_brightness)
+        # self.stream.set(cv2.CAP_PROP_CONTRAST, config.remote.camera_contrast)
         self.grabbed, self.frame = self.stream.read()
 
         self.stopped = False
@@ -54,16 +64,6 @@ class WebcamVideoStream:
     
     def release(self):
         self.stopped = True
-                
-class MockCapture(Capture):
-    def __init__(self) -> None:
-        pass
-        
-    def getFrame(self, config: Config):
-        pass
-        
-    def release(self) -> None:
-        pass
 
 class DefaultCapture(Capture):
     
@@ -81,14 +81,8 @@ class DefaultCapture(Capture):
 
         if self.video == None:
             print(str(datetime.now()) + " - Starting video capture")
-            # self.video = cv2.VideoCapture(config.remote.camera_id)
-            self.video = WebcamVideoStream(src=config.remote.camera_id).start()
-            self.video.set(cv2.CAP_PROP_FRAME_WIDTH, config.remote.camera_resolution_width)
-            self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, config.remote.camera_resolution_height)
-            self.video.set(cv2.CAP_PROP_FPS, 60)
-            self.video.set(cv2.CAP_PROP_AUTO_EXPOSURE, config.remote.camera_auto_exposure)
-            self.video.set(cv2.CAP_PROP_EXPOSURE, config.remote.camera_exposure)
-            self.video.set(cv2.CAP_PROP_GAIN, config.remote.camera_gain)
+            self.video = WebcamVideoStream(config, src=config.remote.camera_id).start()
+            print(str(datetime.now()) + " - Video capture successfully started")
         
         self.last_config = config
 
@@ -97,5 +91,3 @@ class DefaultCapture(Capture):
     def release(self) -> None:
           print(str(datetime.now()) + " - Releasing video capture")
           if self.video != None: self.video.release()
-    
-    
