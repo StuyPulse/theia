@@ -103,6 +103,7 @@ class NTConfigManager:
             self.camera_auto_exposure_sub = table.getIntegerTopic("camera_auto_exposure").subscribe(RemoteConfig.camera_auto_exposure)
             self.camera_exposure_sub = table.getIntegerTopic("camera_exposure").subscribe(RemoteConfig.camera_exposure)
             self.camera_gain_sub = table.getDoubleTopic("camera_gain").subscribe(RemoteConfig.camera_gain)
+            self.camera_brightness_sub = table.getDoubleTopic("camera_brightness").subscribe(RemoteConfig.camera_brightness)
             self.fiducial_layout_sub = table.getDoubleArrayTopic("fiducial_layout").subscribe([])
             self.init_complete = True
 
@@ -112,9 +113,10 @@ class NTConfigManager:
             config.remote.camera_auto_exposure = self.camera_auto_exposure_sub.get()
             config.remote.camera_exposure = self.camera_exposure_sub.get()
             config.remote.camera_gain = self.camera_gain_sub.get()
+            config.remote.camera_brightness = self.camera_brightness_sub.get()
 
             try: 
-                config.remote.tag_layout = json.loads(self.tag_layout_sub.get())
+                config.remote.fiducial_layout = json.loads(self.fiducial_layout_sub.get())
             except:
-                config.remote.tag_layout = None
+                config.remote.fiducial_layout = None
                 pass
