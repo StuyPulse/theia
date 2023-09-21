@@ -1,14 +1,14 @@
 import time
 import cv2
 
-from pipeline.Capture import DefaultCapture
-from pipeline.Detector import FiducialDetector
-from pipeline.PoseEstimator import FiducialPoseEstimator, CameraPoseEstimator
 from config.Config import Config, LocalConfig, RemoteConfig
 from config.ConfigManager import FileConfigManager, NTConfigManager
 from output.Annotate import AnnotateFiducials
 from output.Stream import MJPGServer
 from output.Publisher import NTPublisher
+from pipeline.Capture import DefaultCapture
+from pipeline.Detector import FiducialDetector
+from pipeline.PoseEstimator import FiducialPoseEstimator, CameraPoseEstimator
 
 config = Config(LocalConfig(), RemoteConfig())
 file_config_manager = FileConfigManager()
@@ -23,16 +23,15 @@ pose_estimator = FiducialPoseEstimator(config)
 camera_pose_estimator = CameraPoseEstimator()
 annotator = AnnotateFiducials(config)
 stream = MJPGServer()
-publisher = NTPublisher()
+# publisher = NTPublisher()
 
 stream.start(config)
 
-allPoses = []
 start_time = time.time()
 counter = 0
 
 while True:
-    pt_start_time = time.time()
+    fpt_start = time.time()
     counter += 1
     
     frame = capture.getFrame(config)
@@ -45,8 +44,9 @@ while True:
         fps = counter / (time.time() - start_time)
         start_time = time.time()
         counter = 0
-    pt = time.time() - pt_start_time
+    fpt = time.time() - fpt_start
 
-    frame = annotator.annotate(frame, rvecs, tvecs, fps, pt, config)
-    publisher.send(config, time.time(), fps, pose)
+    frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
+    print(fps, fpt, pose)
+    # publisher.send(config, time.time(), fps, pose)
     stream.set_frame(frame)

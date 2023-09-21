@@ -32,11 +32,11 @@ class AnnotateFiducials(Annotate):
                    [self.fiducial_size/2,self.fiducial_size/2,self.fiducial_size],[-self.fiducial_size/2,self.fiducial_size/2,self.fiducial_size]
                   ])
 
-    def annotate(self, image, rvecs, tvecs, fps, pt, config: Config):
+    def annotate(self, image, rvecs, tvecs, fps, fpt, config: Config):
         for rvec, tvec in zip(rvecs, tvecs):
             rvec, _ = cv2.Rodrigues(rvec)
             image_points, _ = cv2.projectPoints(self.axis, rvec, tvec, config.local.camera_matrix, config.local.distortion_coefficient)
             image = self.drawCube(image, image_points)
         cv2.putText(image, "FPS: " + str(round(fps)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-        cv2.putText(image, "PT: " + str(round(pt * 1000)) + "ms", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+        cv2.putText(image, "FPT: " + str(round(fpt * 1000)) + "ms", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
         return image
