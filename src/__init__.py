@@ -37,8 +37,8 @@ while True:
     frame = capture.getFrame(config)
     corners, ids = detector.detect(frame)
     frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-    rvecs, tvecs = pose_estimator.process(corners, ids)
-    pose = camera_pose_estimator.process(config, rvecs, tvecs, ids)
+    rvecs, tvecs, rangs = pose_estimator.process(corners, ids)
+    pose = camera_pose_estimator.process(config, rangs, tvecs, ids)
 
     if (time.time() - start_time) > 1 :
         fps = counter / (time.time() - start_time)

@@ -10,6 +10,20 @@ class PoseEstimator:
     def process(self, corners):
         raise NotImplementedError
     
+    @classmethod
+    def matToEuler(self, mat):
+        sy = numpy.sqrt(mat[0, 0] * mat[0, 0] + mat[1, 0] * mat[1, 0])
+        singular = sy < 1e-6
+        if not singular:
+            pitch = numpy.arctan2(mat[2, 1], mat[2, 2])
+            yaw = numpy.arctan2(-mat[2, 0], sy)
+            roll = numpy.arctan2(mat[1, 0], mat[0, 0])
+        else:
+            pitch = numpy.arctan2(-mat[1, 2], mat[1, 1])
+            yaw = numpy.arctan2(-mat[2, 0], sy)
+            roll = 0
+        return numpy.array([numpy.array([numpy.degrees(roll)]), numpy.array([numpy.degrees(pitch)]), numpy.array([numpy.degrees(yaw)])])
+    
 class FiducialPoseEstimator(PoseEstimator):
 
     fiducial_size = 0.0
@@ -31,46 +45,56 @@ class FiducialPoseEstimator(PoseEstimator):
     def process(self, corners, ids):
         rvecs = []
         tvecs = []
+        rangs = []
 
         for i, id in enumerate(ids):
             retval, rvec, tvec = cv2.solvePnP(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
+            
+            rang, _ = cv2.Rodrigues(rvec) # Convert rotation vector [3x1] to rotation matrix [3x3]
+            rang = self.matToEuler(rang)
+
             rvecs.append(rvec)
             tvecs.append(tvec)
+            rangs.append(rang)
 
-        return numpy.asarray(rvecs), numpy.asarray(tvecs)
+        return numpy.asarray(rvecs), numpy.asarray(tvecs), numpy.asarray(rangs)
 
-class CameraPoseEstimator:
+class CameraPoseEstimator(PoseEstimator):
     def __init__(self):
+        numpy.set_printoptions(suppress=True)
         pass
     
-    def process(self, config: Config, rvecs, tvecs, ids):
+    def process(self, config: Config, rangs, tvecs, ids):
         # tag_poses = config.remote.tag_layout
         tag_poses = {
-            0: [[0, 0, 0], [0, 0, 0]],
-            1: [[0, 0, 0], [0, 0, 0]],
-            2: [[0, 0, 0], [0, 0, 0]],
-            3: [[0, 0, 0], [0, 0, 0]],
-            4: [[0, 0, 0], [0, 0, 0]],
-            5: [[0, 0, 0], [0, 0, 0]],
-            6: [[0, 0, 0], [0, 0, 0]],
-            7: [[0, 0, 0], [0, 0, 0]],
+            0: [0, 0, 0, 0, 0, 0],
+            1: [0, 0, 0, 0, 0, 0],
+            2: [0, 0, 0, 0, 0, 0],
+            3: [0, 0, 0, 0, 0, 0],
+            4: [0, 0, 0, 0, 0, 0],
+            5: [0, 0, 0, 0, 0, 0],
+            6: [0, 0, 0, 0, 0, 0],
+            7: [0, 0, 0, 0, 0, 0],
         }
         alltvecs = []
-        allrvecs = []
-        for rvec, tvec in zip(rvecs, tvecs):
-            if ids is not None and rvecs is not None and tvecs is not None:
-                for i, id in enumerate(ids[0]):
+        allrangs = []
+        for rang, tvec in zip(rangs, tvecs):
+            if ids is not None and rangs is not None and tvecs is not None:
+                for id in ids[0]:
                     if id in tag_poses:
-                        alltvecs.append([tag_poses[id][0][0] + tvec[0],
-                                        tag_poses[id][0][1] + tvec[1],
-                                        tag_poses[id][0][2] + tvec[2]])
-                        allrvecs.append([tag_poses[id][1][0] + rvec[0],
-                                        tag_poses[id][1][1] + rvec[1],
-                                        tag_poses[id][1][2] + rvec[2]])
+                        alltvecs.append([tag_poses[id][0] + tvec[0],
+                                        tag_poses[id][1] + tvec[1],
+                                        tag_poses[id][2] + tvec[2]])
+                        allrangs.append([tag_poses[id][3] + rang[0],
+                                        tag_poses[id][4] + rang[1],
+                                        tag_poses[id][5] + rang[2]])
 
-        if len(alltvecs) != 0 and len(allrvecs) != 0:
-            robot_pose = []
-            robot_pose.append(numpy.mean(alltvecs, axis=0))
-            robot_pose.append(numpy.mean(allrvecs, axis=0))
+        if len(alltvecs) != 0 and len(allrangs) != 0:
+            robot_pose = [] # [x, y, z, roll, pitch, yaw]
+            alltvecs = numpy.concatenate(numpy.mean(alltvecs, axis=0))
+            allrangs = numpy.concatenate(numpy.mean(allrangs, axis=0))
+            robot_pose.append(alltvecs)
+            robot_pose.append(allrangs)
+            robot_pose = numpy.concatenate(robot_pose)
             return robot_pose
         return None
