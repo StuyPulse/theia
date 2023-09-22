@@ -27,35 +27,35 @@ class MJPGServer(StreamServer):
     def _make_handler(self_mjpeg):  # type: ignore
         class StreamingHandler(BaseHTTPRequestHandler):
             HTML = """
-    <html>
-        <head>
-            <title>ARUCO Debug Stream</title>
-            <style>
-                body {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: #001111;
-                    font-family: sans-serif;
-                }
+                <html>
+                    <head>
+                        <title>ARUCO Debug Stream</title>
+                        <style>
+                            body {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                background-color: #001111;
+                                font-family: sans-serif;
+                            }
 
-                h1 {
-                    color: white;
-                    margin: 4rem;
-                }
+                            h1 {
+                                color: white;
+                                margin: 4rem;
+                            }
 
-                img {
-                    max-width: 800px;
-                    max-height: 600px;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>ARUCO Stream</h1>
-            <img src="stream.mjpg" />
-        </body>
-    </html>
+                            img {
+                                max-width: 800px;
+                                max-height: 600px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>ARUCO Stream</h1>
+                        <img src="stream.mjpg" />
+                    </body>
+                </html>
             """
 
             def do_GET(self):
