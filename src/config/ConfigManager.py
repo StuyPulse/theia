@@ -40,8 +40,9 @@ class FileConfigManager:
     def update(self, config: Config) -> None:
         with open(os.getcwd() + "/src/config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
-        config.local.device_id = config_data["device_id"]
+        config.local.device_name = config_data["device_name"]
         config.local.server_ip = config_data["server_ip"]
+        config.local.team_number = config_data["team_number"]
         config.local.stream_port = config_data["stream_port"]
 
         config.local.calibrated = config_data["calibrated"]
@@ -72,7 +73,7 @@ class FileConfigManager:
 Configuration
 #############
 """)
-        print("Device ID: " + config.local.device_id)
+        print("Device ID: " + config.local.device_name)
         print("Server IP: " + config.local.server_ip)
         print("Stream Port: " + str(config.local.stream_port))
         print("Fiducial Size: " + str(config.local.fiducial_size) + " m")
@@ -80,8 +81,7 @@ Configuration
         print("Calibration Dictionary: " + str(config_data["calibration_dictionary"]))
         print("Calibrated: " + str(config.local.calibrated))
         print("Camera Matrix: " + str(config.local.camera_matrix))
-        print("Distortion Coefficients: " + str(config.local.distortion_coefficient))
-        print("")
+        print("Distortion Coefficients: " + str(config.local.distortion_coefficient) + "\n")
 
 class NTConfigManager:
     init_complete: bool = False
@@ -96,7 +96,7 @@ class NTConfigManager:
 
     def update(self, config: Config) -> None:
         if not self.init_complete:
-            table = NetworkTableInstance.getDefault().getTable("/" + config.local.device_id + "/config")
+            table = NetworkTableInstance.getDefault().getTable("/" + config.local.device_name + "/config")
             self.camera_id_sub = table.getIntegerTopic("camera_id").subscribe(RemoteConfig.camera_id)
             self.camera_resolution_width_sub = table.getIntegerTopic("camera_resolution_width").subscribe(RemoteConfig.camera_resolution_width)
             self.camera_resolution_height_sub = table.getIntegerTopic("camera_resolution_height").subscribe(RemoteConfig.camera_resolution_height)

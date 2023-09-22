@@ -4,8 +4,9 @@ from dataclasses import dataclass, field
 
 @dataclass
 class LocalConfig:
-    device_id: str = ""
+    device_name: str = ""
     server_ip: str = ""
+    team_number: int = 0
     stream_port: int = 5802
     calibrated: bool = False
     fiducial_size: float = 0
