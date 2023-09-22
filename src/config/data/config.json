@@ -1,10 +1,11 @@
 {
-    "device_id": "default",
-    "server_ip": "127.0.0.1",
+    "device_name": "default",
+    "server_ip": "10.6.94.2",
+    "team_number": 694,
     "stream_port": 5802,
     "calibrated": true,
-    "fiducial_size": 0.15,
-    "detection_dictionary": "APRILTAG_16H5",
+    "fiducial_size": 0.16,
+    "detection_dictionary": "APRILTAG_36H11",
     "calibration_dictionary": "5X5_100",
     "charuco_board": [12, 9, 0.03, 0.023]
 }
