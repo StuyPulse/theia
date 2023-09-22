@@ -23,7 +23,7 @@ pose_estimator = FiducialPoseEstimator(config)
 camera_pose_estimator = CameraPoseEstimator()
 annotator = AnnotateFiducials(config)
 stream = MJPGServer()
-# publisher = NTPublisher()
+publisher = NTPublisher(config)
 
 stream.start(config)
 
@@ -45,8 +45,7 @@ while True:
         start_time = time.time()
         counter = 0
     fpt = time.time() - fpt_start
-
     frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
-    print(fps, fpt, pose)
-    # publisher.send(config, time.time(), fps, pose)
+
+    publisher.send(pose, fps, fpt)
     stream.set_frame(frame)
