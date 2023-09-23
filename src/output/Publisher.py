@@ -3,7 +3,6 @@ from typing import Union
 import numpy.typing
 
 from config.Config import Config
-from utils.VisionTypes import CameraPoseObservation
 
 class Publisher:
 
@@ -39,9 +38,12 @@ class NTPublisher:
         
         if fps is not None:
             self.fps_pub.set(fps)
+
         if pose is not None and latency is not None:
             pose = numpy.insert(pose, pose.size, latency * 1000)
             self.pose_pub.set(pose, ntcore._now())
+        else: 
+            self.pose_pub.set([], ntcore._now())
         print("Sent: ", pose, fps)
 
     def close(self):
