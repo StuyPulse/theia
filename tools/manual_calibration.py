@@ -9,7 +9,7 @@ import json
 import datetime
 
 images_path = os.getcwd() + "/captures"
-output_file_name = "./src/config/data/calibration.json"
+output_file_name = "../src/config/data/calibration.json"
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100)
 board = cv2.aruco.CharucoBoard((12,9), 0.03, 0.023, dictionary)
 charucoDetector = cv2.aruco.CharucoDetector(board)

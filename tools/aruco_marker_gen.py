@@ -37,7 +37,7 @@ while dictionary_choice not in FAMILY_DICT.keys():
 dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICT[dictionary_choice])
 
 dpi = 300
-a4_size = (int(numpy.around((210.058 * dpi) / 25.4)), int(numpy.around((296.93 * dpi) / 25.4)))
+a4_size = (int(numpy.around((203.2 * dpi) / 25.4)), int(numpy.around((281.051 * dpi) / 25.4)))
 
 marker_in = float(input('Marker size (in): '))
 marker_width_pxl = int(marker_in * dpi)
@@ -62,7 +62,7 @@ for i in range(number):
     image.paste(marker, offset_tag)
 
     draw = ImageDraw.Draw(image)
-    fnt = ImageFont.truetype('Arial', 56)
+    fnt = ImageFont.truetype('Arial', 72)
     text = 'ID: ' + str(i) + '\nFamily: ' + dictionary_choice + '\nSize: ' + str(marker_in) + ' in'
     offset_text = ((image.size[0] - marker_width_pxl) / 2, ((image.size[1] - marker_width_pxl) / 2) + marker_width_pxl + 192)
     draw.text(offset_text, text.upper(), (0,0,0), font=fnt)
