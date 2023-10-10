@@ -61,7 +61,9 @@ fi
 
 echo "Installing python dependencies..."
 echo "This may take a while..."
-pip install numpy opencv-contrib-python imutils
+pip install numpy 
+pip install opencv-contrib-python 
+# pip install imutils
 pip install robotpy
 echo "Python dependencies installation complete."
 
@@ -111,4 +113,3 @@ systemctl enable theia.service
 echo "Created and enabled Theia systemd service."
 
 echo "Theia installation successful."
-
