@@ -38,7 +38,7 @@ class FileConfigManager:
         pass
     
     def update(self, config: Config) -> None:
-        with open(os.getcwd() + "/src/config/data/" + self.config_file_name, "r") as config_file:
+        with open(os.getcwd() + "/config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
         config.local.device_name = config_data["device_name"]
         config.local.server_ip = config_data["server_ip"]
@@ -57,11 +57,11 @@ class FileConfigManager:
         cbp = config_data["charuco_board"]
         config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1])), cbp[2], cbp[3], config.local.calibration_dictionary)
 
-        if not os.path.isfile(os.getcwd() + "/src/config/data/" + self.calibration_file_name):
+        if not os.path.isfile(os.getcwd() + "/config/data/" + self.calibration_file_name):
             print("Calibration file not found, please run calibration first.")
             exit(1)
         
-        with open(os.getcwd() + "/src/config/data/" + self.calibration_file_name, "r") as file:
+        with open(os.getcwd() + "/config/data/" + self.calibration_file_name, "r") as file:
             calibration = json.load(file)
                 
         camera_matrix = numpy.asarray(calibration["camera_matrix"])
