@@ -8,7 +8,6 @@ class LocalConfig:
     server_ip: str = ""
     team_number: int = 0
     stream_port: int = 5802
-    calibrated: bool = False
     fiducial_size: float = 0
     detection_dictionary: any = None
     calibration_dictionary: any = None

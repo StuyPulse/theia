@@ -45,7 +45,7 @@ class FileConfigManager:
         config.local.team_number = config_data["team_number"]
         config.local.stream_port = config_data["stream_port"]
 
-        config.local.calibrated = config_data["calibrated"]
+        # config.local.calibrated = config_data["calibrated"]
         config.local.fiducial_size = config_data["fiducial_size"]
         config.local.detection_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["detection_dictionary"]])
         config.local.calibration_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["calibration_dictionary"]])
@@ -57,16 +57,19 @@ class FileConfigManager:
         cbp = config_data["charuco_board"]
         config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1])), cbp[2], cbp[3], config.local.calibration_dictionary)
 
+        if not os.path.isfile(os.getcwd() + "/src/config/data/" + self.calibration_file_name):
+            print("Calibration file not found, please run calibration first.")
+            exit(1)
+        
         with open(os.getcwd() + "/src/config/data/" + self.calibration_file_name, "r") as file:
             calibration = json.load(file)
-            
+                
         camera_matrix = numpy.asarray(calibration["camera_matrix"])
         distortion_coefficient = numpy.asarray(calibration["distortion_coefficient"])
 
         if type(camera_matrix) == numpy.ndarray and type(distortion_coefficient) == numpy.ndarray:
             config.local.camera_matrix = camera_matrix
             config.local.distortion_coefficient = distortion_coefficient
-            config.local.calibrated = True
 
         print("""
 #############
@@ -79,7 +82,6 @@ Configuration
         print("Fiducial Size: " + str(config.local.fiducial_size) + " m")
         print("Detection Dictionary: " + str(config_data["detection_dictionary"]))
         print("Calibration Dictionary: " + str(config_data["calibration_dictionary"]))
-        print("Calibrated: " + str(config.local.calibrated))
         print("Camera Matrix: " + str(config.local.camera_matrix))
         print("Distortion Coefficients: " + str(config.local.distortion_coefficient) + "\n")
 
