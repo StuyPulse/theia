@@ -38,7 +38,7 @@ class FileConfigManager:
         pass
     
     def update(self, config: Config) -> None:
-        with open(os.getcwd() + "/config/data/" + self.config_file_name, "r") as config_file:
+        with open("./config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
         config.local.device_name = config_data["device_name"]
         config.local.server_ip = config_data["server_ip"]

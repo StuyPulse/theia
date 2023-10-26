@@ -36,9 +36,7 @@ class WebcamVideoStream:
         self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, config.remote.camera_auto_exposure)
         self.stream.set(cv2.CAP_PROP_EXPOSURE, config.remote.camera_exposure)
         self.stream.set(cv2.CAP_PROP_GAIN, config.remote.camera_gain)
-        # self.stream.set(cv2.CAP_PROP_GAMMA, config.remote.camera_gamma)
-        # self.stream.set(cv2.CAP_PROP_BRIGHTNESS, config.remote.camera_brightness)
-        # self.stream.set(cv2.CAP_PROP_CONTRAST, config.remote.camera_contrast)
+        self.stream.set(cv2.CAP_PROP_BRIGHTNESS, config.remote.camera_brightness)
         self.grabbed, self.frame = self.stream.read()
 
         self.stopped = False
