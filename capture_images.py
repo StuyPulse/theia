@@ -4,7 +4,7 @@ import cv2
 import os
 import time
 
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100)
 board = cv2.aruco.CharucoBoard((12, 9), 0.03, 0.023, dictionary)
 charucoDetector = cv2.aruco.CharucoDetector(board)
@@ -24,6 +24,8 @@ while True:
         print("Images Captured: " + str(images))
     else:
         pass
+
+    cv2.aruco.drawDetectedCornersCharuco(image, charucoCorners, charucoIDs)
 
     if cv2.waitKey(1) == 27: # esc
         break
