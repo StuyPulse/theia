@@ -51,8 +51,17 @@ class FileConfigManager:
         config.local.calibration_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["calibration_dictionary"]])
 
         config.local.aruco_parameters = cv2.aruco.DetectorParameters()
-        # config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
-        # config.local.aruco_parameters.useAruco3Detection = True
+
+        # AprilTag Parameters
+        # config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_APRILTAG
+        # config.local.aruco_parameters.aprilTagQuadDecimate = 2
+        # config.local.aruco_parameters.aprilTagMinClusterPixels = 250
+        # config.local.aruco_parameters.aprilTagCriticalRad = 80 * (3.141592 / 180)
+
+        # Aruco Parameters
+        config.local.aruco_parameters.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+        config.local.aruco_parameters.useAruco3Detection = True
+        config.local.aruco_parameters.cornerRefinementMaxIterations = 20
 
         cbp = config_data["charuco_board"]
         config.local.charuco_board = cv2.aruco.CharucoBoard((int(cbp[0]), int(cbp[1])), cbp[2], cbp[3], config.local.calibration_dictionary)
