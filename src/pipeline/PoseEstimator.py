@@ -48,8 +48,9 @@ class FiducialPoseEstimator(PoseEstimator):
         rangs = []
 
         for i, id in enumerate(ids):
-            retval, rvec, tvec = cv2.solvePnP(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
-            
+            _, rvec, tvec = cv2.solvePnP(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_IPPE_SQUARE)
+            rvec, tvec = cv2.solvePnPRefineVVS(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, rvec, tvec)
+
             rang, _ = cv2.Rodrigues(rvec) # Convert rotation vector [3x1] to rotation matrix [3x3]
             rang = self.matToEuler(rang)
 
@@ -65,6 +66,9 @@ class CameraPoseEstimator(PoseEstimator):
         pass
     
     def process(self, config: Config, rangs, tvecs, ids):
+
+        if ids is None or rangs is None or tvecs is None: return None
+
         # tag_poses = config.remote.tag_layout
         tag_poses = {
             0: [0, 0, 0, 0, 0, 0],
