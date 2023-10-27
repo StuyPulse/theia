@@ -30,7 +30,7 @@ class NTPublisher:
 
         self.fps_pub = table.getFloatTopic("fps").publish()
         self.fps_pub.setDefault(-1)
-        self.pose_pub = table.getDoubleArrayTopic("robot_pose").publish(ntcore.PubSubOptions(keepDuplicates=True, pollStorage=10))
+        self.pose_pub = table.getDoubleArrayTopic("robot_pose").publish(ntcore.PubSubOptions(keepDuplicates=True, pollStorage=10, periodic=0.02))
         self.pose_pub.setDefault([])
         pass
 
@@ -44,8 +44,7 @@ class NTPublisher:
             self.pose_pub.set(pose, ntcore._now())
         else: 
             self.pose_pub.set([], ntcore._now())
-        print("Sent: ", pose, fps)
-
+            
     def close(self):
         self.fps_pub.close()
         self.pose_pub.close()
