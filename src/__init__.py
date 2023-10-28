@@ -68,9 +68,6 @@ if __name__ == '__main__':
     try: 
         main()
     except KeyboardInterrupt:
-        frame = capture.getFrame(config)
-        cv2.imwrite("/Users/ivanchen/Documents/programming/aruco/src/config/data/image.jpg", frame)
-        print(len(poses))
         capture.release()
         publisher.close()
         # x = []
@@ -91,4 +88,3 @@ if __name__ == '__main__':
 
         # plt.plot(x, z)
         # plt.show()
-
