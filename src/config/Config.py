@@ -8,7 +8,6 @@ class LocalConfig:
     server_ip: str = ""
     team_number: int = 0
     stream_port: int = 5802
-    fiducial_size: float = 0
     detection_dictionary: any = None
     calibration_dictionary: any = None
     aruco_parameters: any = None
@@ -26,7 +25,8 @@ class RemoteConfig:
     camera_exposure: int = 50
     camera_gain: int = 0
     camera_brightness: int = 0
-    fiducial_layout: any = field(default_factory=list)
+    fiducial_size: float = 0.15
+    fiducial_layout: list = field(default_factory=list)
 
 @dataclass
 class Config:
