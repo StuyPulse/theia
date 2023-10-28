@@ -32,17 +32,19 @@ class FiducialPoseEstimator(PoseEstimator):
     distortion_coefficient = None
 
     def __init__(self, config: Config):
-        self.fiducial_size = config.local.fiducial_size
-        self.object_points = numpy.asarray([
+        self.camera_matrix = config.local.camera_matrix
+        self.distortion_coefficient = config.local.distortion_coefficient
+    
+    def process(self, corners, ids, config: Config):
+        if config.remote.fiducial_size != self.fiducial_size: 
+            self.fiducial_size = config.remote.fiducial_size
+            self.object_points = numpy.asarray([
                 [-self.fiducial_size / 2, self.fiducial_size / 2, 0],
                 [self.fiducial_size / 2, self.fiducial_size / 2, 0],
                 [self.fiducial_size / 2, -self.fiducial_size / 2, 0],
                 [-self.fiducial_size / 2, -self.fiducial_size / 2, 0]
             ], dtype=numpy.float32)
-        self.camera_matrix = config.local.camera_matrix
-        self.distortion_coefficient = config.local.distortion_coefficient
-    
-    def process(self, corners, ids):
+        
         rvecs = []
         tvecs = []
         rangs = []
@@ -69,7 +71,7 @@ class CameraPoseEstimator(PoseEstimator):
 
         if ids is None or rangs is None or tvecs is None: return None
 
-        # tag_poses = config.remote.tag_layout
+        # tag_poses = config.remote.fiducial_layout
         tag_poses = {
             0: [0, 0, 0, 0, 0, 0],
             1: [0, 0, 0, 0, 0, 0],
@@ -86,9 +88,9 @@ class CameraPoseEstimator(PoseEstimator):
             if ids is not None and rangs is not None and tvecs is not None:
                 for id in ids[0]:
                     if id in tag_poses:
-                        alltvecs.append([tag_poses[id][0] + tvec[0],
-                                        tag_poses[id][1] + tvec[1],
-                                        tag_poses[id][2] + tvec[2]])
+                        alltvecs.append([tag_poses[id][0] + tvec[2],
+                                        tag_poses[id][1] + tvec[0],
+                                        tag_poses[id][2] + tvec[1]])
                         allrangs.append([tag_poses[id][3] + rang[0],
                                         tag_poses[id][4] + rang[1],
                                         tag_poses[id][5] + rang[2]])

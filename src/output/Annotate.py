@@ -24,15 +24,22 @@ class Annotate:
         return frame
     
 class AnnotateFiducials(Annotate):
-    def __init__(self, config: Config):
-        self.fiducial_size = config.local.fiducial_size
-        self.axis = numpy.float32([[-self.fiducial_size/2,-self.fiducial_size/2,0], [self.fiducial_size/2,-self.fiducial_size/2,0],
+
+    fiducial_size = 0.0
+    axis = numpy.array([])
+
+    def __init__(self):
+        pass
+
+    def annotate(self, image, rvecs, tvecs, fps, fpt, config: Config):
+        if config.remote.fiducial_size != self.fiducial_size: 
+            self.fiducial_size = config.remote.fiducial_size
+            self.axis = numpy.float32([[-self.fiducial_size/2,-self.fiducial_size/2,0], [self.fiducial_size/2,-self.fiducial_size/2,0],
                    [self.fiducial_size/2,self.fiducial_size/2,0], [-self.fiducial_size/2,self.fiducial_size/2,0],
                    [-self.fiducial_size/2,-self.fiducial_size/2,self.fiducial_size],[self.fiducial_size/2,-self.fiducial_size/2,self.fiducial_size],
                    [self.fiducial_size/2,self.fiducial_size/2,self.fiducial_size],[-self.fiducial_size/2,self.fiducial_size/2,self.fiducial_size]
                   ])
 
-    def annotate(self, image, rvecs, tvecs, fps, fpt, config: Config):
         for rvec, tvec in zip(rvecs, tvecs):
             rvec, _ = cv2.Rodrigues(rvec)
             image_points, _ = cv2.projectPoints(self.axis, rvec, tvec, config.local.camera_matrix, config.local.distortion_coefficient)
