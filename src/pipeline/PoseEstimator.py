@@ -71,17 +71,7 @@ class CameraPoseEstimator(PoseEstimator):
 
         if ids is None or rangs is None or tvecs is None: return None
 
-        # tag_poses = config.remote.fiducial_layout
-        tag_poses = {
-            0: [0, 0, 0, 0, 0, 0],
-            1: [0, 0, 0, 0, 0, 0],
-            2: [0, 0, 0, 0, 0, 0],
-            3: [0, 0, 0, 0, 0, 0],
-            4: [0, 0, 0, 0, 0, 0],
-            5: [0, 0, 0, 0, 0, 0],
-            6: [0, 0, 0, 0, 0, 0],
-            7: [0, 0, 0, 0, 0, 0],
-        }
+        tag_poses = config.remote.fiducial_layout
         alltvecs = []
         allrangs = []
         for rang, tvec in zip(rangs, tvecs):

@@ -148,16 +148,16 @@ class NTConfigManager:
         config.remote.fiducial_size = self.fiducial_size_sub.get()
         networkLayout = self.fiducial_layout_sub.get()
         
-        layout = []
+        layout = {}
+
         for i in range(int(len(networkLayout) / 7)):
-            layout.append([
-                networkLayout[i * 7 + 0], 
+            layout[int(networkLayout[i * 7 + 0])] = [
                 networkLayout[i * 7 + 1], 
                 networkLayout[i * 7 + 2],
                 networkLayout[i * 7 + 3],
                 networkLayout[i * 7 + 4],
                 networkLayout[i * 7 + 5],
                 networkLayout[i * 7 + 6]
-            ])
+            ]
 
         config.remote.fiducial_layout = layout
