@@ -9,7 +9,10 @@ class Publisher:
     def __init__(self):
         raise NotImplementedError
 
-    def send(self, config: Config, timestamp: float, fps: Union[int, None], pose):
+    def send(self, pose: numpy.typing.NDArray[numpy.float64], fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
+        raise NotImplementedError
+    
+    def sendMsg(self, msg: str):
         raise NotImplementedError
     
     def close(self):
@@ -19,6 +22,10 @@ class NTPublisher:
 
     fps_pub: ntcore.FloatPublisher
     pose_pub: ntcore.DoubleArrayPublisher
+    tvecs_pub: ntcore.DoubleArrayPublisher
+    ids_pub: ntcore.IntegerArrayPublisher
+
+    msg_pub: ntcore.StringPublisher
 
     def __init__(self, config: Config):
 
@@ -32,9 +39,14 @@ class NTPublisher:
         self.fps_pub.setDefault(-1)
         self.pose_pub = table.getDoubleArrayTopic("robot_pose").publish(ntcore.PubSubOptions(keepDuplicates=True, pollStorage=10, periodic=0.02))
         self.pose_pub.setDefault([])
-        pass
+        self.tvecs_pub = table.getDoubleArrayTopic("tvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, pollStorage=10, periodic=0.02))
+        self.tvecs_pub.setDefault([])
+        self.ids_pub = table.getIntegerArrayTopic("ids").publish(ntcore.PubSubOptions(keepDuplicates=True, pollStorage=10, periodic=0.02))
+        self.ids_pub.setDefault([])
 
-    def send(self, pose: numpy.typing.NDArray[numpy.float64], fps: Union[float, None], latency: Union[float, None]):
+        self.msg_pub = table.getStringTopic("_msg").publish()
+
+    def send(self, pose: numpy.typing.NDArray[numpy.float64], fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
         
         if fps is not None:
             self.fps_pub.set(fps)
@@ -44,7 +56,18 @@ class NTPublisher:
             self.pose_pub.set(pose, ntcore._now())
         else: 
             self.pose_pub.set([], ntcore._now())
+        
+        if tvecs is not None:
+            self.tvecs_pub.set(tvecs.flatten(), ntcore._now())
+
+        if ids is not None:
+            self.ids_pub.set(ids.flatten(), ntcore._now())
+
+    def sendMsg(self, msg: str):
+        self.msg_pub.set(msg)
             
     def close(self):
         self.fps_pub.close()
         self.pose_pub.close()
+        self.tvecs_pub.close()
+        self.ids_pub.close()

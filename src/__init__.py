@@ -35,6 +35,8 @@ def main():
     start_time = time.time()
     counter = 0
 
+    publisher.sendMsg(config.local.device_name + " has started")
+
     while True:
         nt_config_manager.update(config)
 
@@ -42,7 +44,10 @@ def main():
         counter += 1
         
         frame = capture.getFrame(config)
-        if frame is None: raise Exception("Camera not connected")
+
+        if frame is None: 
+            publisher.sendMsg("Camera not connected")
+            raise Exception("Camera not connected")
 
         corners, ids = detector.detect(frame)
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
@@ -56,7 +61,8 @@ def main():
         fpt = time.time() - fpt_start
         frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
 
-        publisher.send(pose, fps, fpt)
+        ids, tvecs = detector.orderIDs(corners, ids, tvecs)
+        publisher.send(pose, fps, fpt, tvecs, ids)
         stream.set_frame(frame)
         # print(fpt * 1000)
         # print(pose)
