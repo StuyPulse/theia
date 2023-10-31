@@ -61,16 +61,20 @@ fi
 
 echo "Installing python dependencies..."
 echo "This may take a while..."
-pip install numpy 
-pip install opencv-contrib-python 
-# pip install imutils
-pip install robotpy
+pip3 install Pillow
+echo "pillow installed."
+pip3 install numpy 
+echo "numpy installed."
+pip3 install opencv-contrib-python 
+echo "opencv-contrib-python installed."
+pip3 install -U --find-links=https://tortall.net/~robotpy.wheels/2023/raspbian/ pyntcore
+echo "pyntcore installed."
 echo "Python dependencies installation complete."
 
 echo "Downloading Theia..."
-mkdir -p /opt/theia
-cd /opt/theia
-git clone https://github.com/anivanchen/aruco
+mkdir -p /home/orangepi/theia
+cd /home/orangepi/
+git clone https://github.com/anivanchen/aruco theia
 echo "Download complete."
 
 echo "Creating theia service file..."
@@ -89,18 +93,16 @@ cat > /lib/systemd/system/theia.service <<EOF
 Description=Service that runs Theia module
 
 [Service]
-WorkingDirectory=/opt/theia
+WorkingDirectory=/home/orangepi/theia/src
 # Run theia at "nice" -10, which is higher priority than standard
 Nice=-10
 # for non-uniform CPUs, like big.LITTLE, you want to select the big cores
 # look up the right values for your CPU
-AllowCPUs=4-7
+AllowedCPUs=4-7
 
-ExecStart=/usr/bin/python3 src/__init__.py
-ExecStop=/bin/systemctl kill theia
+ExecStart=python3 __init__.py
+ExecStop=systemctl kill theia
 Type=simple
-Restart=on-failure
-RestartSec=1
 
 [Install]
 WantedBy=multi-user.target
