@@ -1,8 +1,6 @@
 import time
 import cv2
 
-import matplotlib.pyplot as plt
-
 from config.Config import Config, LocalConfig, RemoteConfig
 from config.ConfigManager import FileConfigManager, NTConfigManager
 from output.Annotate import AnnotateFiducials
@@ -26,8 +24,6 @@ camera_pose_estimator = CameraPoseEstimator()
 annotator = AnnotateFiducials()
 stream = MJPGServer()
 publisher = NTPublisher(config)
-
-poses = []
 
 def main():
     stream.start(config)
@@ -63,12 +59,7 @@ def main():
 
         ids, tvecs = detector.orderIDs(corners, ids, tvecs)
         publisher.send(pose, fps, fpt, tvecs, ids)
-        stream.set_frame(frame)
-        # print(fpt * 1000)
-        # print(pose)
-
-        if pose is not None:
-            poses.append(pose)
+        # stream.set_frame(frame)
 
 if __name__ == '__main__':
     try: 
@@ -76,21 +67,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         capture.release()
         publisher.close()
-        # x = []
-        # y = []
-        # z = []
-
-        # plt.figure(figsize=(12, 8))
-        # plt.xlim(-0.3, 0.3)
-        # plt.ylim(0, 5)
-        # plt.title("Pose (x, z)")
-        # plt.xlabel("X (meters)")
-        # plt.ylabel("Z (meters)")
-
-        # for tvec in poses:
-        #         x.append(tvec[0])
-        #         y.append(tvec[1])
-        #         z.append(tvec[2])
-
-        # plt.plot(x, z)
-        # plt.show()
