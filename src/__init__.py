@@ -59,7 +59,7 @@ def main():
 
         ids, tvecs = detector.orderIDs(corners, ids, tvecs)
         publisher.send(pose, fps, fpt, tvecs, ids)
-        # stream.set_frame(frame)
+        stream.set_frame(frame)
 
 if __name__ == '__main__':
     try: 

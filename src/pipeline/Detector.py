@@ -24,7 +24,7 @@ class FiducialDetector:
 
     def orderIDs(self, corners, ids, tvecs): 
 
-        if (ids.flatten() == []) & (tvecs.flatten() == []): return [], []
+        if (numpy.asarray(ids).flatten().tolist() == []) & (numpy.asarray(tvecs).flatten().tolist() == []): return None, None
         
         corners = numpy.asarray(corners).flatten().tolist()
         ids = numpy.asarray(ids).flatten().tolist()
