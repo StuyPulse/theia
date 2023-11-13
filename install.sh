@@ -67,7 +67,7 @@ pip3 install numpy
 echo "numpy installed."
 pip3 install opencv-contrib-python 
 echo "opencv-contrib-python installed."
-pip3 install -U --find-links=https://tortall.net/~robotpy.wheels/2023/raspbian/ pyntcore
+pip3 install -U --find-links=https://tortall.net/~robotpy.wheels/2023/raspbian/ pyntcore --only-binary :all:
 echo "pyntcore installed."
 echo "Python dependencies installation complete."
 
