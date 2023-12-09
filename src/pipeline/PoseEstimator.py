@@ -92,6 +92,5 @@ class CameraPoseEstimator(PoseEstimator):
             robot_pose.append(alltvecs)
             robot_pose.append(allrangs)
             robot_pose = numpy.concatenate(robot_pose)
-            print(robot_pose)
             return robot_pose
         return None
