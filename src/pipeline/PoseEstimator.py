@@ -72,18 +72,18 @@ class CameraPoseEstimator(PoseEstimator):
         if ids is None or rangs is None or tvecs is None: return None
 
         tag_poses = config.remote.fiducial_layout
+        ids = ids.flatten()
         alltvecs = []
         allrangs = []
-        for rang, tvec in zip(rangs, tvecs):
-            if ids is not None and rangs is not None and tvecs is not None:
-                for id in ids[0]:
-                    if id in tag_poses:
-                        alltvecs.append([tag_poses[id][0] + tvec[2],
-                                        tag_poses[id][1] + tvec[0],
-                                        tag_poses[id][2] + tvec[1]])
-                        allrangs.append([tag_poses[id][3] + rang[0],
-                                        tag_poses[id][4] + rang[1],
-                                        tag_poses[id][5] + rang[2]])
+
+        for rang, tvec, id in zip(rangs, tvecs, ids):
+            if id in tag_poses:
+                alltvecs.append([tag_poses[id][0] + tvec[2],
+                                tag_poses[id][1] + tvec[0],
+                                tag_poses[id][2] + tvec[1]])
+                allrangs.append([tag_poses[id][3] + rang[0],
+                                tag_poses[id][4] + rang[1],
+                                tag_poses[id][5] + rang[2]])
 
         if len(alltvecs) != 0 and len(allrangs) != 0:
             robot_pose = [] # [x, y, z, roll, pitch, yaw]
@@ -92,5 +92,6 @@ class CameraPoseEstimator(PoseEstimator):
             robot_pose.append(alltvecs)
             robot_pose.append(allrangs)
             robot_pose = numpy.concatenate(robot_pose)
+            print(robot_pose)
             return robot_pose
         return None
