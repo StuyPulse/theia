@@ -17,21 +17,22 @@ nt_config_manager = NTConfigManager()
 file_config_manager.update(config)
 nt_config_manager.update(config)
 
-capture = DefaultCapture()
 detector = FiducialDetector(config)
 pose_estimator = FiducialPoseEstimator(config)
 camera_pose_estimator = CameraPoseEstimator()
 annotator = AnnotateFiducials()
 stream = MJPGServer()
 publisher = NTPublisher(config)
+capture = DefaultCapture(publisher)
 
 def main():
+
+    publisher.sendMsg(config.local.device_name + " has started")
+
     stream.start(config)
 
     start_time = time.time()
     counter = 0
-
-    publisher.sendMsg(config.local.device_name + " has started")
 
     while True:
         nt_config_manager.update(config)
