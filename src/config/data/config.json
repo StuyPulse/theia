@@ -4,7 +4,6 @@
     "team_number": 694,
     "stream_port": 5802,
     "calibrated": true,
-    "fiducial_size": 0.16,
     "detection_dictionary": "APRILTAG_36H11",
     "calibration_dictionary": "5X5_100",
     "charuco_board": [12, 9, 0.03, 0.023]
