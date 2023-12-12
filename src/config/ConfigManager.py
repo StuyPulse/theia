@@ -118,6 +118,7 @@ class NTConfigManager:
     camera_brightness_sub: DoubleSubscriber
     fiducial_size_sub: DoubleSubscriber
     fiducial_layout_sub: DoubleArraySubscriber
+    camera_offset_sub: DoubleArraySubscriber
 
     def __init__(self):
         pass
@@ -136,6 +137,7 @@ class NTConfigManager:
             self.camera_brightness_sub = table.getDoubleTopic("camera_brightness").subscribe(RemoteConfig.camera_brightness)
             self.fiducial_size_sub = table.getDoubleTopic("fiducial_size").subscribe(RemoteConfig.fiducial_size)
             self.fiducial_layout_sub = table.getDoubleArrayTopic("fiducial_layout").subscribe([])
+            self.camera_offset_sub = table.getDoubleArrayTopic("camera_offset").subscribe([])
             self.init_complete = True
 
         config.remote.camera_id = self.camera_id_sub.get()
@@ -146,6 +148,7 @@ class NTConfigManager:
         config.remote.camera_gain = self.camera_gain_sub.get()
         config.remote.camera_brightness = self.camera_brightness_sub.get()
         config.remote.fiducial_size = self.fiducial_size_sub.get()
+        config.remote.camera_offset = self.camera_offset_sub.get()
         networkLayout = self.fiducial_layout_sub.get()
         
         layout = {}

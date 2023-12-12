@@ -27,6 +27,7 @@ class RemoteConfig:
     camera_brightness: int = 0
     fiducial_size: float = 0.15
     fiducial_layout: list = field(default_factory=list)
+    camera_offset: list = field(default_factory=list)
 
 @dataclass
 class Config:

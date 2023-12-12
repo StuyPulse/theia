@@ -86,11 +86,13 @@ class CameraPoseEstimator(PoseEstimator):
                                 tag_poses[id][5] + rang[2]])
 
         if len(alltvecs) != 0 and len(allrangs) != 0:
-            robot_pose = [] # [x, y, z, roll, pitch, yaw]
+            camera_offset = config.remote.camera_offset # [x, y, z, roll, pitch, yaw]
             alltvecs = numpy.concatenate(numpy.mean(alltvecs, axis=0))
             allrangs = numpy.concatenate(numpy.mean(allrangs, axis=0))
+            robot_pose = []
             robot_pose.append(alltvecs)
             robot_pose.append(allrangs)
             robot_pose = numpy.concatenate(robot_pose)
+            for i in range(6): robot_pose[i] += camera_offset[i]
             return robot_pose
         return None
