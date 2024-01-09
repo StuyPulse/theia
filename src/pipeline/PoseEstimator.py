@@ -1,5 +1,6 @@
 import cv2
 import numpy
+import math
 
 from config.Config import Config
 
@@ -78,21 +79,28 @@ class CameraPoseEstimator(PoseEstimator):
 
         for rang, tvec, id in zip(rangs, tvecs, ids):
             if id in tag_poses:
-                alltvecs.append([tag_poses[id][0] + tvec[2],
-                                tag_poses[id][1] + tvec[0],
+                c = math.cos(math.radians(tag_poses[id][5]))
+                s = math.sin(math.radians(tag_poses[id][5]))
+                
+
+                alltvecs.append([tag_poses[id][0] + ((tvec[2] - tag_poses[id][0]) * c - (tvec[0] - tag_poses[id][1]) * s),
+                                tag_poses[id][1] - ((tvec[2] - tag_poses[id][0])  * s + (tvec[0] - tag_poses[id][1]) * c),
                                 tag_poses[id][2] + tvec[1]])
                 allrangs.append([tag_poses[id][3] + rang[0],
                                 tag_poses[id][4] + rang[1],
                                 tag_poses[id][5] + rang[2]])
+                print(tvec)
+                print(rang)
+                print(tag_poses)
 
         if len(alltvecs) != 0 and len(allrangs) != 0:
-            camera_offset = config.remote.camera_offset # [x, y, z, roll, pitch, yaw]
+            # camera_offset = config.remote.camera_offset # [x, y, z, roll, pitch, yaw]
             alltvecs = numpy.concatenate(numpy.mean(alltvecs, axis=0))
             allrangs = numpy.concatenate(numpy.mean(allrangs, axis=0))
             robot_pose = []
             robot_pose.append(alltvecs)
             robot_pose.append(allrangs)
             robot_pose = numpy.concatenate(robot_pose)
-            for i in range(6): robot_pose[i] += camera_offset[i]
+            # for i in range(6): robot_pose[i] += camera_offset[i]
             return robot_pose
         return None

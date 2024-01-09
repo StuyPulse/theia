@@ -75,16 +75,16 @@ class DefaultCapture(Capture):
     
     def getFrame(self, config: Config):
 
-        if self.video != None and self.configChanged(self.last_config, config):
-            self.publisher.sendMsg(str(datetime.now()) + " - Restarting video capture after configuration change")
-            print(str(datetime.now()) + " - Restarting video capture after configuration change")
-            self.video.release()
-            self.video = None
+        # if self.video != None and self.configChanged(self.last_config, config):
+        #     self.publisher.sendMsg(str(datetime.now()) + " - Restarting video capture after configuration change")
+        #     print(str(datetime.now()) + " - Restarting video capture after configuration change")
+        #     self.video.release()
+        #     self.video = None
 
         if self.video == None and config != None:
             self.publisher.sendMsg(str(datetime.now()) + " - Starting video capture")
             print(str(datetime.now()) + " - Starting video capture")
-            self.video = WebcamVideoStream(config, src=config.remote.camera_id).start()
+            self.video = WebcamVideoStream(config, src=0).start()
             self.publisher.sendMsg(str(datetime.now()) + " - Video capture successfully started")
             print(str(datetime.now()) + " - Video capture successfully started")
             self.last_config = Config(dataclasses.replace(config.local), dataclasses.replace(config.remote))

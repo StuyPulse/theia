@@ -44,8 +44,8 @@ class MJPGServer(StreamServer):
                 }
 
                 img {
-                    max-width: 800px;
-                    max-height: 600px;
+                    max-width: 1600px;
+                    max-height: 1200px;
                 }
             </style>
         </head>
