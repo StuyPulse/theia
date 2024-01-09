@@ -129,7 +129,6 @@ All of the values defined below can be accessed through the `Config` class in th
 The `config.json` file contains various parameters that can be adjusted but not normally tuned. These parameters are:
 
 - `device_id`: The device ID of the camera to be used. This can be found by running the `lsusb` or `v4l2-ctl --list-devices` command.
-- `server_ip`: The IP address of the NetworkTables server.
 - `stream_port`: The port of the HTTP stream.
 - `calibrated`: Whether the camera has been calibrated or not. If the camera has not been calibrated, the calibration process will be triggered on startup.
 - `fiducial_size`: The size of the ArUco markers in meters.

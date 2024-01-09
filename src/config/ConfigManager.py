@@ -42,10 +42,14 @@ class FileConfigManager:
         with open("./config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
         config.local.device_name = config_data["device_name"]
-        if sys.argv[1].strip() == "-l":
-            config.local.server_ip = "127.0.0.1"
-        else: config.local.server_ip = config_data["server_ip"]
         config.local.team_number = config_data["team_number"]
+        
+        if len(sys.argv) > 1 and sys.argv[1].strip() == "-l":
+            config.local.server_ip = "127.0.0.1"
+        else:
+            s = str(config.local.team_number)[-4:].zfill(4)
+            config.local.server_ip = f"10.{s[:2].lstrip('0')}.{s[2:].lstrip('0')}.2"
+        
         config.local.stream_port = config_data["stream_port"]
 
         config.local.detection_dictionary = cv2.aruco.getPredefinedDictionary(FAMILY_DICTIONARY[config_data["detection_dictionary"]])
