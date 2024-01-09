@@ -2,6 +2,7 @@ import os
 import json
 import cv2
 import numpy
+import sys
 from ntcore import IntegerSubscriber, DoubleSubscriber, DoubleArraySubscriber, NetworkTableInstance
 
 from config.Config import Config, RemoteConfig
@@ -41,7 +42,9 @@ class FileConfigManager:
         with open("./config/data/" + self.config_file_name, "r") as config_file:
             config_data = json.load(config_file)
         config.local.device_name = config_data["device_name"]
-        config.local.server_ip = config_data["server_ip"]
+        if sys.argv[1].strip() == "-l":
+            config.local.server_ip = "127.0.0.1"
+        else: config.local.server_ip = config_data["server_ip"]
         config.local.team_number = config_data["team_number"]
         config.local.stream_port = config_data["stream_port"]
 
