@@ -26,7 +26,9 @@ class RemoteConfig:
     camera_gain: int = 0
     camera_brightness: int = 0
     fiducial_size: float = 0.15
+    # [id, x, y, z, pitch, roll, yaw]: [_, m, m, m, deg, deg, deg]
     fiducial_layout: list = field(default_factory=list)
+    # [x, y, z, pitch, roll, yaw]: [m, m, m, deg, deg, deg]
     camera_offset: list = field(default_factory=list)
 
 @dataclass
