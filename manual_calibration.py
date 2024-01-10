@@ -1,3 +1,11 @@
+"""
+Copyright (c) 2023-2024 Ivan Chen, StuyPulse
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/license/MIT.
+"""
+
 # Manually calibrate camera using folder of previouly captured images
 # Outputs camera matrix and distortion coefficients to json file and command line
 

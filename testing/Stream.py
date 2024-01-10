@@ -1,3 +1,11 @@
+"""
+Copyright (c) 2023-2024 Ivan Chen, StuyPulse
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/license/MIT.
+"""
+
 import socketserver
 import threading
 import time

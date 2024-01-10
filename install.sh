@@ -1,5 +1,13 @@
 #!/bin/bash
 
+:'
+Copyright (c) 2023-2024 Ivan Chen, StuyPulse
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/license/MIT.
+'
+
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root" 1>&2
     exit 1

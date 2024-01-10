@@ -1,3 +1,11 @@
+"""
+Copyright (c) 2023-2024 Ivan Chen, StuyPulse
+
+Use of this source code is governed by an MIT-style
+license that can be found in the LICENSE file or at
+https://opensource.org/license/MIT.
+"""
+
 # Generate a charuco board with the specified dictionary and height
 # Configuration information is included in the resulting image
 
