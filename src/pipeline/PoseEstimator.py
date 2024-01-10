@@ -87,14 +87,14 @@ class CameraPoseEstimator(PoseEstimator):
 
         for rang, tvec, id in zip(rangs, tvecs, ids):
             if id in tag_poses:
-                c = math.cos(math.radians(tag_poses[id][5]))
-                s = math.sin(math.radians(tag_poses[id][5]))
-                
+                c = math.cos(tag_poses[id][5])
+                s = math.sin(tag_poses[id][5])
+                                
                 # converts from OpenCV 3D coordinate system to wpilib field coordinate system
                 field_tvecs = [tvec[2], -tvec[0], tvec[1]]
 
-                alltvecs.append([tag_poses[id][0] + ((field_tvecs[0] - tag_poses[id][0]) * c - (field_tvecs[1] - tag_poses[id][1]) * s),
-                                tag_poses[id][1] +  ((field_tvecs[0] - tag_poses[id][0]) * s + (field_tvecs[1] - tag_poses[id][1]) * c),
+                alltvecs.append([tag_poses[id][0] + (field_tvecs[0] * c - field_tvecs[1] * s),
+                                tag_poses[id][1] +  (field_tvecs[0] * s + field_tvecs[1] * c),
                                 tag_poses[id][2] + field_tvecs[2]])
                 allrangs.append([tag_poses[id][3] + rang[0],
                                 tag_poses[id][4] + rang[1],
