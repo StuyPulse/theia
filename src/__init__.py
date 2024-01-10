@@ -67,7 +67,7 @@ def main():
         frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
 
         ids, tvecs = detector.orderIDs(corners, ids, tvecs)
-        publisher.send(pose, fps, fpt, tvecs, ids)
+        publisher.send(pose, fps, fpt, tvecs, rangs, ids)
         stream.set_frame(frame)
 
 if __name__ == '__main__':
