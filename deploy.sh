@@ -6,6 +6,7 @@ if ! command -v sshpass &> /dev/null
     sshpass -porangepi scp -r . orangepi@orangepi5:~/theia
     echo "--- RESTARTING THEIA SERVICE ---"
     sshpass -porangepi ssh orangepi@orangepi5 -t "systemctl restart theia"
+    exit 1
 then
     echo "sshpass could not be found, using ssh"
 
