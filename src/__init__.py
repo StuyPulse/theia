@@ -17,6 +17,7 @@ from output.Publisher import NTPublisher
 from pipeline.Capture import DefaultCapture
 from pipeline.Detector import FiducialDetector
 from pipeline.PoseEstimator import FiducialPoseEstimator, CameraPoseEstimator
+from util.Pose3d import Pose3d
 
 config = Config(LocalConfig(), RemoteConfig())
 file_config_manager = FileConfigManager()
@@ -56,18 +57,21 @@ def main():
 
         corners, ids = detector.detect(frame)
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        rvecs, tvecs, rangs = pose_estimator.process(corners, ids, config)
-        pose = camera_pose_estimator.process(config, rangs, tvecs, ids)
+        rvecs, poses = pose_estimator.process(corners, ids, config)
+        pose = camera_pose_estimator.process(config, poses, ids)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
             start_time = time.time()
             counter = 0
         fpt = time.time() - fpt_start
+
+        tvecs = Pose3d.poses_to_tvecs(poses)
+
         frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
 
         ids, tvecs = detector.orderIDs(corners, ids, tvecs)
-        publisher.send(pose, fps, fpt, tvecs, rangs, ids)
+        publisher.send(pose, fps, fpt, tvecs, Pose3d.poses_to_rangs(poses), ids)
         stream.set_frame(frame)
 
 if __name__ == '__main__':
