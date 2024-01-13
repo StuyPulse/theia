@@ -18,7 +18,7 @@ class Publisher:
     def __init__(self):
         raise NotImplementedError
 
-    def send(self, pose: numpy.typing.NDArray[numpy.float64], fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
         raise NotImplementedError
     
     def sendMsg(self, msg: str):
@@ -30,10 +30,9 @@ class Publisher:
 class NTPublisher:
 
     fps_pub: ntcore.FloatPublisher
-    pose_pub: ntcore.DoubleArrayPublisher
     latency_pub: ntcore.DoublePublisher
     tvecs_pub: ntcore.DoubleArrayPublisher
-    rangs_pub: ntcore.DoubleArrayPublisher
+    rvecs_pub: ntcore.DoubleArrayPublisher
     ids_pub: ntcore.IntegerArrayPublisher
 
     msg_pub: ntcore.StringPublisher
@@ -49,33 +48,29 @@ class NTPublisher:
 
         self.fps_pub = table.getFloatTopic("fps").publish()
         self.fps_pub.setDefault(0)
-        self.pose_pub = table.getDoubleArrayTopic("robot_pose").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.pose_pub.setDefault([])
         self.latency_pub = table.getDoubleTopic("latency").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.latency_pub.setDefault(0)
         self.tvecs_pub = table.getDoubleArrayTopic("tvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.tvecs_pub.setDefault([])
-        self.rangs_pub = table.getDoubleArrayTopic("rangs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.rangs_pub.setDefault([])
+        self.rvecs_pub = table.getDoubleArrayTopic("rvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.rvecs_pub.setDefault([])
         self.ids_pub = table.getIntegerArrayTopic("ids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.ids_pub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
 
-    def send(self, pose: numpy.typing.NDArray[numpy.float64], fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], rangs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], rvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
 
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if pose is not None and latency is not None and rangs is not None and tvecs is not None and ids is not None:
-            self.pose_pub.set(pose, ntcore._now())
+        if latency is not None and rvecs is not None and tvecs is not None and ids is not None:
             self.latency_pub.set(latency * 1000, ntcore._now())
             self.tvecs_pub.set(tvecs.flatten(), ntcore._now())
-            self.rangs_pub.set(rangs.flatten(), ntcore._now())
+            self.rvecs_pub.set(rvecs.flatten(), ntcore._now())
             self.ids_pub.set(ids.flatten(), ntcore._now())
         else:
-            self.pose_pub.set([])
             self.tvecs_pub.set([])
-            self.rangs_pub.set([])
+            self.rvecs_pub.set([])
             self.ids_pub.set([])
 
     def sendMsg(self, msg: str):
@@ -83,7 +78,6 @@ class NTPublisher:
             
     def close(self):
         self.fps_pub.close()
-        self.pose_pub.close()
         self.tvecs_pub.close()
-        self.rangs_pub.close()
+        self.rvecs_pub.close()
         self.ids_pub.close()

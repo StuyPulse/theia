@@ -56,8 +56,7 @@ def main():
 
         corners, ids = detector.detect(frame)
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        rvecs, tvecs, rangs = pose_estimator.process(corners, ids, config)
-        pose = camera_pose_estimator.process(config, rangs, tvecs, ids)
+        rvecs, tvecs = pose_estimator.process(corners, ids, config)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
@@ -67,7 +66,7 @@ def main():
         frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
 
         ids, tvecs = detector.orderIDs(corners, ids, tvecs)
-        publisher.send(pose, fps, fpt, tvecs, rangs, ids)
+        publisher.send(fps, fpt, tvecs, rvecs, ids)
         stream.set_frame(frame)
 
 if __name__ == '__main__':
