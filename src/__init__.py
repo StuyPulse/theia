@@ -55,9 +55,8 @@ def main():
             time.sleep(1)
             continue
 
-        fiducial = detector.detect(frame)
-        # frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        tids, primary_pose = pose_estimator.process(fiducial, config)
+        fiducials = detector.detect(frame)
+        tids, primary_pose = pose_estimator.process(fiducials, config)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
@@ -65,9 +64,8 @@ def main():
             counter = 0
         
         fpt = time.time() - fpt_start
-        # frame = annotator.annotate(frame, [rvec], [tvec], fps, fpt, config)
 
-        # ids, tvec = detector.orderIDs(corners, ids, tvecs)
+        # tids = detector.orderIDs(fiducials[0], fiducials[1])
         publisher.send(fps, fpt, tids, primary_pose)
         stream.set_frame(frame)
 

@@ -27,12 +27,12 @@ class FiducialDetector:
     def detect(self, image):
         all_corners, ids, rejected = self.detector.detectMarkers(image)
 
-        fiducial = []
+        fiducials = []
 
         if ids is not None:
             for tid, corners in zip(ids, all_corners):
-                fiducial += [(tid[0], corners)]
-            return fiducial
+                fiducials += [(tid[0], corners)]
+            return fiducials
         return None
 
     def orderIDs(self, corners, ids, tvecs): 
