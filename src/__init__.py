@@ -56,7 +56,7 @@ def main():
 
         corners, ids = detector.detect(frame)
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        rvecs, tvecs, rangs = pose_estimator.process(corners, ids, config)
+        ids, rvecs, tvecs, rangs = pose_estimator.process(corners, ids, config)
         pose = camera_pose_estimator.process(config, rangs, tvecs, ids)
 
         if (time.time() - start_time) > 1:
