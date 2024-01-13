@@ -87,8 +87,10 @@ class CameraPoseEstimator(PoseEstimator):
 
         tag_poses = config.remote.fiducial_layout
         cam_poses = []
+        
 
         for pose in poses:
+            
             if pose.tid in tag_poses.keys():
                 field_to_tag = tag_poses[pose.tid]
                 camera_to_tag = Transform3d(pose.cam_to_tag.translation(), pose.cam_to_tag.rotation())

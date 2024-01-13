@@ -60,7 +60,7 @@ def main():
         else: 
             publisher.sendMsg("Camera not connected")
             print('Camera not connected')
-            rvecs, tvecs, rangs, poses = numpy.asarray([0] * 3), numpy.asarray([0] * 3), numpy.asarray([0] * 3), Pose3d(Translation3d(-100, -100, -100), Rotation3d(0, 0, 0))
+            rvecs, tvecs, rangs, poses = numpy.asarray([0] * 3), numpy.asarray([0] * 3), numpy.asarray([0] * 3), [Pose3d(Translation3d(-100, -100, -100), Rotation3d(0, 0, 0))]
 
         pose = camera_pose_estimator.process(config, poses)
 
