@@ -75,14 +75,15 @@ pip3 install numpy
 echo "numpy installed."
 pip3 install opencv-contrib-python 
 echo "opencv-contrib-python installed."
-pip3 install -U --find-links=https://tortall.net/~robotpy/wheels/2023/raspbian/ pyntcore --only-binary :all:
+# pip3 install -U --find-links=https://tortall.net/~robotpy/wheels/2023/raspbian/ pyntcore --only-binary :all:
+pip3 install --find-links=https://tortall.net/~robotpy/wheels/2023/raspbian/ -U robotpy[wpimath]
 echo "pyntcore installed."
 echo "Python dependencies installation complete."
 
 echo "Downloading Theia..."
 mkdir -p /home/orangepi/theia
 cd /home/orangepi/
-git clone https://github.com/anivanchen/aruco theia
+git clone https://github.com/stuypulse/theia theia
 echo "Download complete."
 
 echo "Creating theia service file..."
@@ -108,8 +109,10 @@ Nice=-10
 # look up the right values for your CPU
 AllowedCPUs=4-7
 
-ExecStart=python3.10 __init__.py
+ExecStart=python3 __init__.py
 ExecStop=systemctl kill theia
+Restart=on-failure
+RestartSec=1
 Type=simple
 
 [Install]
