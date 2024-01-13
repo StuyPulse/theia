@@ -8,6 +8,9 @@ https://opensource.org/license/MIT.
 
 import time
 import cv2
+import numpy
+
+from wpimath.geometry import *
 
 from config.Config import Config, LocalConfig, RemoteConfig
 from config.ConfigManager import FileConfigManager, NTConfigManager
@@ -50,14 +53,16 @@ def main():
         
         frame = capture.getFrame(config)
 
-        if frame is None: 
+        if frame is not None:
+            corners, ids = detector.detect(frame)
+            frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+            rvecs, tvecs, rangs, poses = pose_estimator.process(corners, ids, config)
+        else: 
             publisher.sendMsg("Camera not connected")
-            raise Exception("Camera not connected")
+            print('Camera not connected')
+            rvecs, tvecs, rangs, poses = numpy.asarray([0] * 3), numpy.asarray([0] * 3), numpy.asarray([0] * 3), Pose3d(Translation3d(-100, -100, -100), Rotation3d(0, 0, 0))
 
-        corners, ids = detector.detect(frame)
-        frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        rvecs, tvecs, rangs = pose_estimator.process(corners, ids, config)
-        pose = camera_pose_estimator.process(config, rangs, tvecs, ids)
+        pose = camera_pose_estimator.process(config, poses)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
