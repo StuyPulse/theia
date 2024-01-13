@@ -29,10 +29,11 @@ class FiducialDetector:
 
         fiducial = []
 
-        for tid, corners in zip(ids, all_corners):
-            fiducial += [(tid[0], corners)]
-
-        return fiducial
+        if ids is not None:
+            for tid, corners in zip(ids, all_corners):
+                fiducial += [(tid[0], corners)]
+            return fiducial
+        return None
 
     def orderIDs(self, corners, ids, tvecs): 
 

@@ -54,6 +54,8 @@ class FiducialPoseEstimator(PoseEstimator):
     
     def process(self, fiducial, config: Config):
 
+        if fiducial is None or len(fiducial) == 0: return None, None 
+
         object_points = []
         image_points = []
         tag_ids = []
@@ -61,7 +63,6 @@ class FiducialPoseEstimator(PoseEstimator):
 
         tag_layout = config.remote.fiducial_layout
         fid_size = config.remote.fiducial_size
-        tvec, rvec = [], []
 
         for tid, corners in fiducial:
             if tid in tag_layout:

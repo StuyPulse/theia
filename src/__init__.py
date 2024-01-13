@@ -51,7 +51,9 @@ def main():
 
         if frame is None: 
             publisher.sendMsg("Camera not connected")
-            raise Exception("Camera not connected")
+            publisher.send(fps, fpt, None, None)
+            time.sleep(1)
+            continue
 
         fiducial = detector.detect(frame)
         # frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
