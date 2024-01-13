@@ -67,10 +67,11 @@ class NTPublisher:
             self.fps_pub.set(fps)
 
         if pose is not None and latency is not None and rangs is not None and tvecs is not None and ids is not None:
+
             self.pose_pub.set(pose, ntcore._now())
             self.latency_pub.set(latency * 1000, ntcore._now())
-            self.tvecs_pub.set(tvecs.flatten(), ntcore._now())
-            self.rangs_pub.set(rangs.flatten(), ntcore._now())
+            # self.tvecs_pub.set(tvecs.flatten(), ntcore._now())
+            # self.rangs_pub.set(rangs.flatten(), ntcore._now())
             self.ids_pub.set(ids.flatten(), ntcore._now())
         else:
             self.pose_pub.set([])

@@ -9,6 +9,7 @@ https://opensource.org/license/MIT.
 import cv2
 import numpy
 import math
+from wpimath.geometry import *
 
 from config.Config import Config
 
@@ -69,43 +70,45 @@ class FiducialPoseEstimator(PoseEstimator):
             tvecs.append(tvec)
             rangs.append(rang)
 
-        return numpy.asarray(rvecs), numpy.asarray(tvecs), numpy.asarray(rangs)
+        return rvecs, tvecs, rangs
+    
+def cv2wpi(tvec, rvec):
+    return Pose3d(Translation3d(tvec[2][0], -tvec[0][0], -tvec[1][0]), 
+                  Rotation3d(rvec[2][0], -rvec[0][0], -rvec[1][0]))
 
 class CameraPoseEstimator(PoseEstimator):
     def __init__(self):
         numpy.set_printoptions(suppress=True)
         pass
-    
-    def process(self, config: Config, rangs, tvecs, ids):
+
+    def process(self, config: Config, rangs, rvecs, tvecs, ids):
 
         if ids is None or rangs is None or tvecs is None: return None
 
-        tag_poses = config.remote.fiducial_layout
+        tag_layout = config.remote.fiducial_layout
         ids = ids.flatten()
-        alltvecs = []
-        allrangs = []
+        field_to_camera_ps, field_to_camera_translate, field_to_camera_rotation = [], [], []
 
-        for rang, tvec, id in zip(rangs, tvecs, ids):
-            if id in tag_poses:
-                c = math.cos(tag_poses[id][5] - math.radians(rang[2]))
-                s = math.sin(tag_poses[id][5] - math.radians(rang[2]))
-                                
-                # converts from OpenCV 3D coordinate system to wpilib field coordinate system
-                field_tvecs = [tvec[2], -tvec[0], tvec[1]]
+        for rvec, tvec, id in zip(rvecs, tvecs, ids):
 
-                alltvecs.append([tag_poses[id][0] + (field_tvecs[0] * c - field_tvecs[1] * s),
-                                tag_poses[id][1] +  (field_tvecs[0] * s + field_tvecs[1] * c),
-                                tag_poses[id][2] + field_tvecs[2]])
-                allrangs.append([tag_poses[id][3] + rang[0],
-                                tag_poses[id][4] + rang[1],
-                                tag_poses[id][5] + rang[2]])
+            field_to_tag, camera_to_tag_p, camera_to_tag, field_to_camera, field_to_camera_p = None, None, None, None, None
 
-        if len(alltvecs) != 0 and len(allrangs) != 0:
-            alltvecs = numpy.concatenate(numpy.mean(alltvecs, axis=0))
-            allrangs = numpy.concatenate(numpy.mean(allrangs, axis=0))
-            robot_pose = []
-            robot_pose.append(alltvecs)
-            robot_pose.append(allrangs)
-            robot_pose = numpy.concatenate(robot_pose)
-            return robot_pose
+            if id in tag_layout:
+                field_to_tag = Pose3d(Translation3d(tag_layout[id][0], tag_layout[id][1], tag_layout[id][2]),
+                                   Rotation3d(tag_layout[id][3], tag_layout[id][4], tag_layout[id][5]))
+                
+                camera_to_tag_p =   cv2wpi(tvec, rvec)
+                camera_to_tag =     Transform3d(camera_to_tag_p.translation(), camera_to_tag_p.rotation())
+                field_to_camera =   field_to_tag.transformBy(camera_to_tag.inverse())
+                field_to_camera_p = Pose3d(field_to_camera.translation(), field_to_camera.rotation())
+
+            field_to_camera_translate.append([field_to_camera_p.x, field_to_camera_p.y, field_to_camera_p.z])
+            field_to_camera_rotation.append([field_to_camera_p.rotation().x, field_to_camera_p.rotation().y, field_to_camera_p.rotation().z])
+
+        if len(ids) != 0:
+            field_to_camera_translate = numpy.array(numpy.mean(numpy.asarray(field_to_camera_translate), axis=0)).tolist()
+            field_to_camera_rotation = numpy.array(numpy.mean(numpy.asarray(field_to_camera_rotation), axis=0)).tolist()
+
+            field_to_camera_ps = [field_to_camera_translate[0], field_to_camera_translate[1], field_to_camera_translate[2], field_to_camera_rotation[0], field_to_camera_rotation[1], field_to_camera_rotation[2]]
+            return field_to_camera_ps
         return None
