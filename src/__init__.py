@@ -16,7 +16,7 @@ from output.Stream import MJPGServer
 from output.Publisher import NTPublisher
 from pipeline.Capture import DefaultCapture
 from pipeline.Detector import FiducialDetector
-from pipeline.PoseEstimator import FiducialPoseEstimator, CameraPoseEstimator
+from pipeline.PoseEstimator import FiducialPoseEstimator
 
 config = Config(LocalConfig(), RemoteConfig())
 file_config_manager = FileConfigManager()
@@ -27,7 +27,6 @@ nt_config_manager.update(config)
 
 detector = FiducialDetector(config)
 pose_estimator = FiducialPoseEstimator(config)
-camera_pose_estimator = CameraPoseEstimator()
 annotator = AnnotateFiducials()
 stream = MJPGServer()
 publisher = NTPublisher(config)
@@ -56,17 +55,18 @@ def main():
 
         corners, ids = detector.detect(frame)
         frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        rvecs, tvecs = pose_estimator.process(corners, ids, config)
+        tvec, rvec = pose_estimator.process(corners, ids, config)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
             start_time = time.time()
             counter = 0
+        
         fpt = time.time() - fpt_start
-        frame = annotator.annotate(frame, rvecs, tvecs, fps, fpt, config)
+        # frame = annotator.annotate(frame, [rvec], [tvec], fps, fpt, config)
 
-        ids, tvecs = detector.orderIDs(corners, ids, tvecs)
-        publisher.send(fps, fpt, tvecs, rvecs, ids)
+        # ids, tvec = detector.orderIDs(corners, ids, tvecs)
+        publisher.send(fps, fpt, tvec, rvec, ids)
         stream.set_frame(frame)
 
 if __name__ == '__main__':

@@ -50,27 +50,31 @@ class NTPublisher:
         self.fps_pub.setDefault(0)
         self.latency_pub = table.getDoubleTopic("latency").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.latency_pub.setDefault(0)
-        self.tvecs_pub = table.getDoubleArrayTopic("tvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.tvecs_pub.setDefault([])
-        self.rvecs_pub = table.getDoubleArrayTopic("rvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.rvecs_pub.setDefault([])
+        # self.tvecs_pub = table.getDoubleArrayTopic("tvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        # self.tvecs_pub.setDefault([])
+        # self.rvecs_pub = table.getDoubleArrayTopic("rvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        # self.rvecs_pub.setDefault([])
+        self.tvec_rvec_pub = table.getDoubleArrayTopic("tvec_rvec").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.tvec_rvec_pub.setDefault([])
         self.ids_pub = table.getIntegerArrayTopic("ids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.ids_pub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
 
-    def send(self, fps: Union[float, None], latency: Union[float, None], tvecs: numpy.typing.NDArray[numpy.float64], rvecs: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tvec: numpy.typing.NDArray[numpy.float64], rvec: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
 
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if latency is not None and rvecs is not None and tvecs is not None and ids is not None:
+        if latency is not None and rvec is not None and tvec is not None and ids is not None:
             self.latency_pub.set(latency * 1000, ntcore._now())
-            self.tvecs_pub.set(tvecs.flatten(), ntcore._now())
-            self.rvecs_pub.set(rvecs.flatten(), ntcore._now())
+            self.tvec_rvec_pub.set([tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2]], ntcore._now())
+            # self.tvecs_pub.set(tvec.flatten(), ntcore._now())
+            # self.rvecs_pub.set(rvec.flatten(), ntcore._now())
             self.ids_pub.set(ids.flatten(), ntcore._now())
         else:
-            self.tvecs_pub.set([])
-            self.rvecs_pub.set([])
+            # self.tvecs_pub.set([])
+            # self.rvecs_pub.set([])
+            self.tvec_rvec_pub.set([])
             self.ids_pub.set([])
 
     def sendMsg(self, msg: str):
@@ -78,6 +82,8 @@ class NTPublisher:
             
     def close(self):
         self.fps_pub.close()
-        self.tvecs_pub.close()
-        self.rvecs_pub.close()
+        # self.tvecs_pub.close()
+        # self.rvecs_pub.close()
+        self.tvec_rvec_pub.close()
         self.ids_pub.close()
+        self.msg_pub.close()
