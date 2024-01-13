@@ -10,6 +10,7 @@ import ntcore
 from typing import Union
 import numpy.typing
 import logging
+from wpimath.geometry import *
 
 from config.Config import Config
 
@@ -26,6 +27,16 @@ class Publisher:
     
     def close(self):
         raise NotImplementedError
+
+def poseToArray(pose: Pose3d):
+    return [
+        pose.translation().X(),
+        pose.translation().Y(),
+        pose.translation().Z(),
+        pose.rotation().X(),
+        pose.rotation().Y(),
+        pose.rotation().Z()
+    ]
 
 class NTPublisher:
 
@@ -50,40 +61,30 @@ class NTPublisher:
         self.fps_pub.setDefault(0)
         self.latency_pub = table.getDoubleTopic("latency").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
         self.latency_pub.setDefault(0)
-        # self.tvecs_pub = table.getDoubleArrayTopic("tvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        # self.tvecs_pub.setDefault([])
-        # self.rvecs_pub = table.getDoubleArrayTopic("rvecs").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        # self.rvecs_pub.setDefault([])
-        self.tvec_rvec_pub = table.getDoubleArrayTopic("tvec_rvec").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.tvec_rvec_pub.setDefault([])
-        self.ids_pub = table.getIntegerArrayTopic("ids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
-        self.ids_pub.setDefault([])
+        self.tids_pub = table.getIntegerArrayTopic("tids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.tids_pub.setDefault([])
+        self.pose_sub = table.getDoubleArrayTopic("pose").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.pose_sub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
 
-    def send(self, fps: Union[float, None], latency: Union[float, None], tvec: numpy.typing.NDArray[numpy.float64], rvec: numpy.typing.NDArray[numpy.float64], ids: numpy.typing.NDArray[numpy.float64]):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose):
 
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if latency is not None and rvec is not None and tvec is not None and ids is not None:
+        if latency is not None and tids is not None and primary_pose is not None:
             self.latency_pub.set(latency * 1000, ntcore._now())
-            self.tvec_rvec_pub.set([tvec[0], tvec[1], tvec[2], rvec[0], rvec[1], rvec[2]], ntcore._now())
-            # self.tvecs_pub.set(tvec.flatten(), ntcore._now())
-            # self.rvecs_pub.set(rvec.flatten(), ntcore._now())
-            self.ids_pub.set(ids.flatten(), ntcore._now())
+            self.tids_pub.set(tids, ntcore._now())
+            self.pose_sub.set(poseToArray(primary_pose), ntcore._now())
         else:
-            # self.tvecs_pub.set([])
-            # self.rvecs_pub.set([])
-            self.tvec_rvec_pub.set([])
-            self.ids_pub.set([])
+            self.tids_pub.set([])
+            self.pose_sub.set([])
 
     def sendMsg(self, msg: str):
         self.msg_pub.set(msg)
             
     def close(self):
         self.fps_pub.close()
-        # self.tvecs_pub.close()
-        # self.rvecs_pub.close()
-        self.tvec_rvec_pub.close()
-        self.ids_pub.close()
+        self.tids_pub.close()
+        self.pose_sub.close()
         self.msg_pub.close()

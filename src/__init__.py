@@ -53,9 +53,9 @@ def main():
             publisher.sendMsg("Camera not connected")
             raise Exception("Camera not connected")
 
-        corners, ids = detector.detect(frame)
-        frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-        tvec, rvec = pose_estimator.process(corners, ids, config)
+        fiducial = detector.detect(frame)
+        # frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+        tids, primary_pose = pose_estimator.process(fiducial, config)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
@@ -66,7 +66,7 @@ def main():
         # frame = annotator.annotate(frame, [rvec], [tvec], fps, fpt, config)
 
         # ids, tvec = detector.orderIDs(corners, ids, tvecs)
-        publisher.send(fps, fpt, tvec, rvec, ids)
+        publisher.send(fps, fpt, tids, primary_pose)
         stream.set_frame(frame)
 
 if __name__ == '__main__':
