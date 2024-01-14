@@ -8,7 +8,7 @@ https://opensource.org/license/MIT.
 
 import cv2
 import numpy
-import math
+from wpimath.geometry import *
 
 from config.Config import Config
 
@@ -32,11 +32,19 @@ class PoseEstimator:
             yaw = numpy.arctan2(-mat[2, 0], sy)
             roll = 0
         return numpy.array([numpy.array([numpy.degrees(roll)]), numpy.array([numpy.degrees(pitch)]), numpy.array([numpy.degrees(yaw)])])
-    
+
+def cvtowpi(tvec, rvec):
+    return Pose3d(Translation3d(tvec[2][0], -tvec[0][0], -tvec[1][0]),
+                  Rotation3d(
+                      (rvec[2][0], -rvec[0][0], -rvec[1][0]),
+                      (rvec[2][0]**2 + rvec[0][0]**2 + rvec[1][0]**2)**0.5))
+
+def wpitocv(translation):
+    return [-translation.Y(), -translation.Z(), translation.X()]
+
 class FiducialPoseEstimator(PoseEstimator):
 
     fiducial_size = 0.0
-    object_points = numpy.array([])
     camera_matrix = None
     distortion_coefficient = None
 
@@ -44,68 +52,95 @@ class FiducialPoseEstimator(PoseEstimator):
         self.camera_matrix = config.local.camera_matrix
         self.distortion_coefficient = config.local.distortion_coefficient
     
-    def process(self, corners, ids, config: Config):
-        if config.remote.fiducial_size != self.fiducial_size: 
-            self.fiducial_size = config.remote.fiducial_size
-            self.object_points = numpy.asarray([
-                [-self.fiducial_size / 2, self.fiducial_size / 2, 0],
-                [self.fiducial_size / 2, self.fiducial_size / 2, 0],
-                [self.fiducial_size / 2, -self.fiducial_size / 2, 0],
-                [-self.fiducial_size / 2, -self.fiducial_size / 2, 0]
-            ], dtype=numpy.float32)
+    def process(self, fiducial, config: Config):
+
+        if fiducial is None or len(fiducial) == 0: return None, None 
+
+        object_points = []
+        image_points = []
+        tag_ids = []
+        tag_poses = []
+
+        tag_layout = config.remote.fiducial_layout
+        fid_size = config.remote.fiducial_size
+
+        for tid, corners in fiducial:
+            if tid in tag_layout:
+                tag_pose = Pose3d(
+                    Translation3d(
+                        tag_layout[tid][0],
+                        tag_layout[tid][1],
+                        tag_layout[tid][2],
+                    ),
+                    Rotation3d(
+                        tag_layout[tid][3],
+                        tag_layout[tid][4],
+                        tag_layout[tid][5],
+                    ))
+                
+                corner_0 = tag_pose + Transform3d(Translation3d(0, fid_size / 2.0, -fid_size / 2.0), Rotation3d())
+                corner_1 = tag_pose + Transform3d(Translation3d(0, -fid_size / 2.0, -fid_size / 2.0), Rotation3d())
+                corner_2 = tag_pose + Transform3d(Translation3d(0, -fid_size / 2.0, fid_size / 2.0), Rotation3d())
+                corner_3 = tag_pose + Transform3d(Translation3d(0, fid_size / 2.0, fid_size / 2.0), Rotation3d())
+                object_points += [
+                    wpitocv(corner_0.translation()),
+                    wpitocv(corner_1.translation()),
+                    wpitocv(corner_2.translation()),
+                    wpitocv(corner_3.translation())
+                ]
+
+                image_points += [
+                    [corners[0][0][0], corners[0][0][1]],
+                    [corners[0][1][0], corners[0][1][1]],
+                    [corners[0][2][0], corners[0][2][1]],
+                    [corners[0][3][0], corners[0][3][1]]
+                ]
+
+                tag_ids += [tid]
+                tag_poses += [tag_pose]
+
+        if len(tag_ids) == 1:
+            object_points = numpy.array([[-fid_size / 2.0, fid_size / 2.0, 0.0],
+                                         [fid_size / 2.0, fid_size / 2.0, 0.0],
+                                         [fid_size / 2.0, -fid_size / 2.0, 0.0],
+                                         [-fid_size / 2.0, -fid_size / 2.0, 0.0]])
+            try:
+                _, rvecs, tvecs, errors = cv2.solvePnPGeneric(object_points, numpy.array(image_points),
+                                                              self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_IPPE_SQUARE)
+            except:
+                return (None, None)
         
-        rvecs = []
-        tvecs = []
-        rangs = []
+            # Calculate WPILib camera poses
+            field_to_tag_pose = tag_poses[0]
+            camera_to_tag_pose_0 = cvtowpi(tvecs[0], rvecs[0])
+            camera_to_tag_pose_1 = cvtowpi(tvecs[1], rvecs[1])
+            camera_to_tag_0 = Transform3d(camera_to_tag_pose_0.translation(), camera_to_tag_pose_0.rotation())
+            camera_to_tag_1 = Transform3d(camera_to_tag_pose_1.translation(), camera_to_tag_pose_1.rotation())
+            field_to_camera_0 = field_to_tag_pose.transformBy(camera_to_tag_0.inverse())
+            field_to_camera_1 = field_to_tag_pose.transformBy(camera_to_tag_1.inverse())
+            field_to_camera_pose_0 = Pose3d(field_to_camera_0.translation(), field_to_camera_0.rotation())
+            field_to_camera_pose_1 = Pose3d(field_to_camera_1.translation(), field_to_camera_1.rotation())
 
-        for i, id in enumerate(ids):
-            _, rvec, tvec = cv2.solvePnP(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_IPPE_SQUARE)
-            rvec, tvec = cv2.solvePnPRefineVVS(self.object_points, corners[i], self.camera_matrix, self.distortion_coefficient, rvec, tvec)
+            if errors[0][0] < errors[1][0] * 0.15: 
+                return (tag_ids, field_to_camera_pose_0)
+            if errors[1][0] < errors[0][0] * 0.15: 
+                return (tag_ids, field_to_camera_pose_1)
+            
+            return (None, None)
 
-            rang, _ = cv2.Rodrigues(rvec) # Convert rotation vector [3x1] to rotation matrix [3x3]
-            rang = self.matToEuler(rang)
+        # Multi-tag, return one pose
+        else:
+            # Run SolvePNP with all tags
+            try:
+                _, rvecs, tvecs, errors = cv2.solvePnPGeneric(numpy.array(object_points), numpy.array(image_points),
+                                                              self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
+            except:
+                return (None, None)
 
-            rvecs.append(rvec)
-            tvecs.append(tvec)
-            rangs.append(rang)
+            # Calculate WPILib camera pose
+            camera_to_field_pose = cvtowpi(tvecs[0], rvecs[0])
+            camera_to_field = Transform3d(camera_to_field_pose.translation(), camera_to_field_pose.rotation())
+            field_to_camera = camera_to_field.inverse()
+            field_to_camera_pose = Pose3d(field_to_camera.translation(), field_to_camera.rotation())
 
-        return numpy.asarray(rvecs), numpy.asarray(tvecs), numpy.asarray(rangs)
-
-class CameraPoseEstimator(PoseEstimator):
-    def __init__(self):
-        numpy.set_printoptions(suppress=True)
-        pass
-    
-    def process(self, config: Config, rangs, tvecs, ids):
-
-        if ids is None or rangs is None or tvecs is None: return None
-
-        tag_poses = config.remote.fiducial_layout
-        ids = ids.flatten()
-        alltvecs = []
-        allrangs = []
-
-        for rang, tvec, id in zip(rangs, tvecs, ids):
-            if id in tag_poses:
-                c = math.cos(tag_poses[id][5] - math.radians(rang[2]))
-                s = math.sin(tag_poses[id][5] - math.radians(rang[2]))
-                                
-                # converts from OpenCV 3D coordinate system to wpilib field coordinate system
-                field_tvecs = [tvec[2], -tvec[0], tvec[1]]
-
-                alltvecs.append([tag_poses[id][0] + (field_tvecs[0] * c - field_tvecs[1] * s),
-                                tag_poses[id][1] +  (field_tvecs[0] * s + field_tvecs[1] * c),
-                                tag_poses[id][2] + field_tvecs[2]])
-                allrangs.append([tag_poses[id][3] + rang[0],
-                                tag_poses[id][4] + rang[1],
-                                tag_poses[id][5] + rang[2]])
-
-        if len(alltvecs) != 0 and len(allrangs) != 0:
-            alltvecs = numpy.concatenate(numpy.mean(alltvecs, axis=0))
-            allrangs = numpy.concatenate(numpy.mean(allrangs, axis=0))
-            robot_pose = []
-            robot_pose.append(alltvecs)
-            robot_pose.append(allrangs)
-            robot_pose = numpy.concatenate(robot_pose)
-            return robot_pose
-        return None
+            return (tag_ids, field_to_camera_pose)

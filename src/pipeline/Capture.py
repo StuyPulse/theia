@@ -9,7 +9,7 @@ https://opensource.org/license/MIT.
 import cv2
 import dataclasses
 from datetime import datetime
-from threading import Thread
+from threading import Thread, Condition
 
 from config.Config import Config
 from output.Publisher import NTPublisher
@@ -36,6 +36,9 @@ class Capture:
                 
 class WebcamVideoStream:
     def __init__(self, config: Config, src=0):
+
+        self.cond = Condition()
+
         self.stream = cv2.VideoCapture(src)
         self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc(*"MJPG"))
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, config.remote.camera_resolution_height)
@@ -45,8 +48,9 @@ class WebcamVideoStream:
         self.stream.set(cv2.CAP_PROP_EXPOSURE, config.remote.camera_exposure)
         self.stream.set(cv2.CAP_PROP_GAIN, config.remote.camera_gain)
         self.stream.set(cv2.CAP_PROP_BRIGHTNESS, config.remote.camera_brightness)
-        self.grabbed, self.frame = self.stream.read()
 
+        self.grabbed, self.frame = self.stream.read()
+        self.has_read = False
         self.stopped = False
 
     def start(self):
@@ -62,11 +66,21 @@ class WebcamVideoStream:
         while True:
             if self.stopped:
                 return
-
+            
+            cv2.VideoCapture.waitAny([self.stream])
             self.grabbed, self.frame = self.stream.read()
+
+            with self.cond:
+                self.has_read = False
+                self.cond.notify_all()
+
     
     def read(self):
-        return self.frame
+        with self.cond:
+            while self.has_read:
+                self.cond.wait()
+            self.has_read = True
+            return self.frame
     
     def release(self):
         self.stopped = True
