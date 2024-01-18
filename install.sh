@@ -60,6 +60,10 @@ echo "Installing cpufrequtils..."
 apt-get install cpufrequtils
 echo "cpufrequtils installation complete."
 
+echo "Installing ffmpeg, libsm6, and libxext6..."
+apt-get install ffmpeg libsm6 libxext6  -y
+echo "ffmpeg, libsm6, and libxext6 installation complete."
+
 echo "Setting cpufrequtils to performance mode..."
 if [ -f /etc/default/cpufrequtils ]; then
     sed -i -e "s/^#\?GOVERNOR=.*$/GOVERNOR=performance/" /etc/default/cpufrequtils
@@ -112,7 +116,7 @@ AllowedCPUs=4-7
 ExecStart=python3 __init__.py
 ExecStop=systemctl kill theia
 Restart=on-failure
-RestartSec=1
+RestartSec=5
 Type=simple
 
 [Install]
