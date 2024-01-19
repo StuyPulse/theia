@@ -52,7 +52,7 @@ def main():
         if frame is None: 
             publisher.sendMsg("Camera not connected")
             publisher.send(fps, fpt, None, None)
-            time.sleep(1)
+            capture.release()
             continue
 
         fiducials = detector.detect(frame)

@@ -10,6 +10,7 @@ import cv2
 import dataclasses
 from datetime import datetime
 from threading import Thread, Condition
+import subprocess
 
 from config.Config import Config
 from output.Publisher import NTPublisher
@@ -67,7 +68,6 @@ class WebcamVideoStream:
             if self.stopped:
                 return
             
-            cv2.VideoCapture.waitAny([self.stream])
             self.grabbed, self.frame = self.stream.read()
 
             with self.cond:
@@ -84,6 +84,7 @@ class WebcamVideoStream:
     
     def release(self):
         self.stopped = True
+        self.stream.release()
 
 class DefaultCapture(Capture):
     
@@ -97,12 +98,6 @@ class DefaultCapture(Capture):
     
     def getFrame(self, config: Config):
 
-        # if self.video != None and self.configChanged(self.last_config, config):
-        #     self.publisher.sendMsg(str(datetime.now()) + " - Restarting video capture after configuration change")
-        #     print(str(datetime.now()) + " - Restarting video capture after configuration change")
-        #     self.video.release()
-        #     self.video = None
-
         if self.video == None and config != None:
             self.publisher.sendMsg(str(datetime.now()) + " - Starting video capture")
             print(str(datetime.now()) + " - Starting video capture")
@@ -110,6 +105,7 @@ class DefaultCapture(Capture):
             self.publisher.sendMsg(str(datetime.now()) + " - Video capture successfully started")
             print(str(datetime.now()) + " - Video capture successfully started")
             self.last_config = Config(dataclasses.replace(config.local), dataclasses.replace(config.remote))
+            subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "-c", "exposure_absolute=" + str(config.remote.camera_exposure)])
 
         return self.video.read()
     
@@ -117,3 +113,4 @@ class DefaultCapture(Capture):
         self.publisher.sendMsg(str(datetime.now()) + " - Releasing video capture")
         print(str(datetime.now()) + " - Releasing video capture")
         if self.video != None: self.video.release()
+        self.video = None
