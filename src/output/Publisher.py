@@ -47,6 +47,8 @@ class NTPublisher:
     ids_pub: ntcore.IntegerArrayPublisher
 
     msg_pub: ntcore.StringPublisher
+    update_counter_pub: ntcore.IntegerPublisher
+    counter: int
 
     def __init__(self, config: Config):
 
@@ -59,13 +61,16 @@ class NTPublisher:
 
         self.fps_pub = table.getFloatTopic("fps").publish()
         self.fps_pub.setDefault(0)
-        self.latency_pub = table.getDoubleTopic("latency").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.latency_pub = table.getDoubleTopic("latency").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.latency_pub.setDefault(0)
-        self.tids_pub = table.getIntegerArrayTopic("tids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.tids_pub = table.getIntegerArrayTopic("tids").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.tids_pub.setDefault([])
-        self.pose_sub = table.getDoubleArrayTopic("pose").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.01))
+        self.pose_sub = table.getDoubleArrayTopic("pose").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.pose_sub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
+        self.update_counter_pub = table.getIntegerTopic("update_counter").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
+        
+        self.counter = 0
 
     def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose):
 
@@ -80,6 +85,9 @@ class NTPublisher:
             self.tids_pub.set([])
             self.pose_sub.set([])
 
+        self.update_counter_pub.set(self.counter, ntcore._now())
+        self.counter += 1
+
     def sendMsg(self, msg: str):
         self.msg_pub.set(msg)
             
@@ -88,3 +96,4 @@ class NTPublisher:
         self.tids_pub.close()
         self.pose_sub.close()
         self.msg_pub.close()
+        self.update_counter_pub.close()
