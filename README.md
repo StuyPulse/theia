@@ -2,7 +2,7 @@
 
 Theia aims to be a plug-and-play visual localization solution using the ArUco marker (aka fiducial) system and transfer the data using the NetworkTables communication system. ArUco markers are a popular choice for camera-based augmented reality or localization applications and can be utilized for determining the position and orientation of objects in a camera's field of view. 
 
-Theia is able to detect ArUco markers within a camera's viewport and compute the relative positions of each marker to the camera using the SolvePnP algorithm. Combining this with knowledge of the absolute position of each marker on the environment, we can derive the absolute position of the robot within the environment with high accuracy and precision. 
+Theia is able to detect ArUco markers within a camera's viewport and compute the relative positions of each marker to the camera using the SolvePnP algorithm. Combining this with knowledge of the absolute position of each marker on the environment, we can derive the absolute position of the camera within the environment with high accuracy and precision. 
 
 ## Table of Contents
 
@@ -13,7 +13,6 @@ Theia is able to detect ArUco markers within a camera's viewport and compute the
 - [Configuration](#configuration)
 - [Contributing](#contributing)
 - [License](#license)
-- [Further Reading](#further-reading)
 
 ## Class Breakdown
 
@@ -41,18 +40,12 @@ Theia is able to detect ArUco markers within a camera's viewport and compute the
 
 `ConfigManager.py`: Reads configuration data from configuration files stored locally on the device in `src/config/data` and from NetworkTables.
 
-### calibration
-
-`CalibrationSession.py`: Starts a calibration session within the Theia module. More details on calibration can be found in the calibration section of this README.
-
-`CalibrationManager.py`: Triggers a calibration session on command from the NetworkTables.
-
 ## Installation
 
-To set up the project on a Linux coprocessor:
+To set up the project on a headless Linux devices:
 
 1. Download the installation script ([`install.sh`]()) in this repository.
-    - `wget https://raw.githubusercontent.com/anivanchen/aruco/main/install.sh -O install.sh`
+    - `wget https://raw.githubusercontent.com/stuypulse/theia/main/install.sh -O install.sh`
 2. Give the downloaded .sh file execute permissions.
     - `sudo chmod -x install.sh`
 3. Run the script. This will automatically handle the download of the project, along with any of its dependancies and set up a `systemd` service to automatically execute the script on startup. 
@@ -63,7 +56,7 @@ To set up the project on a Linux coprocessor:
 To set up the project for development:
 
 1. Clone the project repository.
-    - `git clone https://github.com/anivanchen/aruco.git`
+    - `git clone https://github.com/stuypulse/theia.git`
 2. Install the project dependancies.
     - `pip install -r requirements.txt`
 3. Run the project.
@@ -74,15 +67,13 @@ For headless Linux devices:
 
 - To setup the project, see the [installation](#installation) section.
 - To manually run the main project: `python3 src/__init__.py`
-- To trigger manual calibration (only if you have images stored in `captures/`): `python3 manual_calibration.py`
+- To trigger manual calibration (only if you have images stored in `/captures`): `python3 manual_calibration.py`
 
-*Note that test scripts and manual image snapshot capture script will not work as intended since they were designed with the usage of the CV2 window.*
+*Note that the manual image snapshot capture script will not work as intended since they were designed with the usage of the CV2 window.*
 
 For Linux, Windows, or MacOS devices:
 
 - To run the main project: `python3 src/__init__.py`
-- To run the test scripts: `python3 testing/test.py` or `python3 testing/test_threaded.py`
-- To test if the camera is working: `python3 testing/camera_test.py`
 - To manually capture image frames: `python3 capture_images.py`
 - To manually calibrate the camera: `python3 manual_calibration.py`
 - To generate a ChArUco board: `python3 charuco_board_gen.py`
@@ -128,10 +119,10 @@ All of the values defined below can be accessed through the `Config` class in th
 
 The `config.json` file contains various parameters that can be adjusted but not normally tuned. These parameters are:
 
-- `device_id`: The device ID of the camera to be used. This can be found by running the `lsusb` or `v4l2-ctl --list-devices` command.
+- `device_name`: The name of the camera, which also determines the NetworkTable table name.
+- `team_number`: The team number of the robot. The team number also determines the IP address of the NetworkTable server.
 - `stream_port`: The port of the HTTP stream.
 - `calibrated`: Whether the camera has been calibrated or not. If the camera has not been calibrated, the calibration process will be triggered on startup.
-- `fiducial_size`: The size of the ArUco markers in meters.
 - `detection_dictionary`: The dictionary used for ArUco marker detection.
 - `calibration_dictionary`: The dictionary used for camera calibration.
 - `charuco_board`: The parameters used to construct the ChArUco board used for calibration.
@@ -145,6 +136,7 @@ Values read from NetworkTables can be accessed and adjusted through client inter
 - `camera_exposure`: The exposure of the camera.
 - `camera_gain`: The gain of the camera.
 - `camera_brightness`: The brightness of the camera.
+- `fiducial_size`: The size of the ArUco markers in meters.
 - `fiducial_layout`: The layout of the fiducial markers in the environment.
 
 *Note that these values need to be updated in robot code to be saved as these values are not permanently stored locally.* 
