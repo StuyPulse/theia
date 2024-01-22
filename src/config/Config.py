@@ -36,8 +36,6 @@ class RemoteConfig:
     fiducial_size: float = 0.15
     # [id, x, y, z, roll, pitch, yaw]: [_, m, m, m, rad, rad, rad]
     fiducial_layout: list = field(default_factory=list)
-    # [x, y, z, roll, pitch, yaw]: [m, m, m, rad, rad, rad]
-    camera_offset: list = field(default_factory=list)
 
 @dataclass
 class Config:
