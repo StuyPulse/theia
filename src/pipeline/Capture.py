@@ -105,7 +105,7 @@ class DefaultCapture(Capture):
             self.publisher.sendMsg(str(datetime.now()) + " - Video capture successfully started")
             print(str(datetime.now()) + " - Video capture successfully started")
             self.last_config = Config(dataclasses.replace(config.local), dataclasses.replace(config.remote))
-            subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "-c", "exposure_absolute=" + str(config.remote.camera_exposure)])
+            if config.local.server_ip != "127.0.0.1": subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "-c", "exposure_absolute=" + str(config.remote.camera_exposure)])
 
         return self.video.read()
     
