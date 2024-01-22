@@ -7,7 +7,6 @@ https://opensource.org/license/MIT.
 """
 
 import time
-import cv2
 
 from config.Config import Config, LocalConfig, RemoteConfig
 from config.ConfigManager import FileConfigManager, NTConfigManager
