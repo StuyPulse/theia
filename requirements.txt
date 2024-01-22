@@ -1,5 +1,5 @@
-imutils==0.5.4
-matplotlib==3.7.1
 numpy==1.24.3
-opencv_contrib_python==4.7.0.72
-robotpy==2023.4.3.0
+opencv_contrib_python==4.9.0.80
+Pillow==10.2.0
+pyntcore==2024.1.1.1
+robotpy_wpimath==2024.1.1.1
