@@ -6,7 +6,7 @@ license that can be found in the LICENSE file or at
 https://opensource.org/license/MIT.
 """
 
-import time
+import time, cv2
 
 from config.Config import Config, LocalConfig, RemoteConfig
 from config.ConfigManager import FileConfigManager, NTConfigManager
@@ -50,11 +50,16 @@ def main():
 
         if frame is None: 
             publisher.sendMsg("Camera not connected")
-            publisher.send(fps, fpt, None, None)
+            publisher.send(0, 0, None, None)
             capture.release()
             continue
 
-        fiducials = detector.detect(frame)
+        fiducials, tids, all_corners = detector.detect(frame)
+
+        if tids is not None and all_corners is not None:
+            frame = cv2.aruco.drawDetectedMarkers(frame, all_corners, tids)
+            tids = detector.orderIDs(all_corners, tids)
+
         tids, primary_pose = pose_estimator.process(fiducials, config)
 
         if (time.time() - start_time) > 1:
@@ -64,7 +69,6 @@ def main():
         
         fpt = time.time() - fpt_start
 
-        # tids = detector.orderIDs(fiducials[0], fiducials[1])
         publisher.send(fps, fpt, tids, primary_pose)
         stream.set_frame(frame)
 

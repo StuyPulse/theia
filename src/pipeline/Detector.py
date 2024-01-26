@@ -32,16 +32,15 @@ class FiducialDetector:
         if ids is not None:
             for tid, corners in zip(ids, all_corners):
                 fiducials += [(tid[0], corners)]
-            return fiducials
-        return None
+            return fiducials, ids, all_corners
+        return None, None, None
 
-    def orderIDs(self, corners, ids, tvecs): 
+    def orderIDs(self, corners, ids): 
 
-        if (numpy.asarray(ids).flatten().tolist() == []) & (numpy.asarray(tvecs).flatten().tolist() == []): return None, None
+        if (numpy.asarray(ids).flatten().tolist() == []): return None
         
         corners = numpy.asarray(corners).flatten().tolist()
         ids = numpy.asarray(ids).flatten().tolist()
-        tvecs = numpy.asarray(tvecs).tolist()
 
         areas = []
 
@@ -75,7 +74,6 @@ class FiducialDetector:
 
         outAreas = []
         outIDs = []
-        outTvecs = []
         
         while areas:
             smallest = min(areas)
@@ -83,9 +81,7 @@ class FiducialDetector:
 
             outAreas.append(areas.pop(index))
             outIDs.append(ids.pop(index))
-            outTvecs.append(tvecs.pop(index))
 
         outIDs.reverse()
-        outTvecs.reverse()
         
-        return numpy.asarray(outIDs), numpy.asarray(outTvecs)
+        return numpy.asarray(outIDs)
