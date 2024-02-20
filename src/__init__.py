@@ -61,7 +61,7 @@ def main():
             frame = cv2.aruco.drawDetectedMarkers(frame, all_corners, tids)
             tids, areas = detector.orderIDs(all_corners, tids)
 
-        tids, primary_pose = pose_estimator.process(fiducials, config)
+        tids, primary_pose, reprojection_error = pose_estimator.process(fiducials, config)
 
         if (time.time() - start_time) > 1:
             fps = counter / (time.time() - start_time)
@@ -70,7 +70,7 @@ def main():
         
         fpt = time.time() - fpt_start
 
-        publisher.send(fps, fpt, tids, primary_pose, areas)
+        publisher.send(fps, fpt, tids, primary_pose, areas, reprojection_error)
         stream.set_frame(frame)
 
 if __name__ == '__main__':
