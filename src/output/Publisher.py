@@ -46,6 +46,7 @@ class NTPublisher:
     rvecs_pub: ntcore.DoubleArrayPublisher
     tids_pub: ntcore.IntegerArrayPublisher
     areas_pub: ntcore.DoubleArrayPublisher
+    reprojection_error_pub: ntcore.DoublePublisher
 
     msg_pub: ntcore.StringPublisher
     update_counter_pub: ntcore.IntegerPublisher
@@ -70,12 +71,14 @@ class NTPublisher:
         self.pose_sub.setDefault([])
         self.areas_pub = table.getDoubleArrayTopic("areas").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.areas_pub.setDefault([])
+        self.reprojection_error_pub = table.getDoubleTopic("reprojection_error").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
+        self.reprojection_error_pub.setDefault(0)
         self.msg_pub = table.getStringTopic("_msg").publish()
         self.update_counter_pub = table.getIntegerTopic("update_counter").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         
         self.counter = 0
 
-    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas, reprojection_error):
 
         if fps is not None:
             self.fps_pub.set(fps)
@@ -86,11 +89,13 @@ class NTPublisher:
             self.pose_sub.set(poseToArray(primary_pose), ntcore._now())
             self.areas_pub.set(areas, ntcore._now())
             self.update_counter_pub.set(self.counter, ntcore._now())
+            self.reprojection_error_pub.set(reprojection_error, ntcore._now())
             self.counter += 1
         else:
             self.tids_pub.set([])
             self.pose_sub.set([])
             self.areas_pub.set([])
+            self.reprojection_error_pub.set(0)
 
     def sendMsg(self, msg: str):
         self.msg_pub.set(msg)
