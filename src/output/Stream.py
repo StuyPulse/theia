@@ -37,9 +37,10 @@ class MJPGServer(StreamServer):
             HTML = """
                 <html>
                     <head>
-                        <title>ARUCO Debug Stream</title>
+                        <title>Camera Stream</title>
                         <style>
                             body {
+                                min-height: 100vh;
                                 display: flex;
                                 flex-direction: column;
                                 align-items: center;
@@ -54,13 +55,13 @@ class MJPGServer(StreamServer):
                             }
 
                             img {
+                                width: 80%;
                                 max-width: 800px;
                                 max-height: 600px;
                             }
                         </style>
                     </head>
                     <body>
-                        <h1>ARUCO Stream</h1>
                         <img src="stream.mjpg" />
                     </body>
                 </html>
