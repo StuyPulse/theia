@@ -44,7 +44,8 @@ class NTPublisher:
     latency_pub: ntcore.DoublePublisher
     tvecs_pub: ntcore.DoubleArrayPublisher
     rvecs_pub: ntcore.DoubleArrayPublisher
-    ids_pub: ntcore.IntegerArrayPublisher
+    tids_pub: ntcore.IntegerArrayPublisher
+    areas_pub: ntcore.DoubleArrayPublisher
 
     msg_pub: ntcore.StringPublisher
     update_counter_pub: ntcore.IntegerPublisher
@@ -67,26 +68,29 @@ class NTPublisher:
         self.tids_pub.setDefault([])
         self.pose_sub = table.getDoubleArrayTopic("pose").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.pose_sub.setDefault([])
+        self.areas_pub = table.getDoubleArrayTopic("areas").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
+        self.areas_pub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
         self.update_counter_pub = table.getIntegerTopic("update_counter").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         
         self.counter = 0
 
-    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose):
+    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas):
 
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if latency is not None and tids is not None and primary_pose is not None:
+        if latency is not None and tids is not None and primary_pose is not None and len(areas) > 0:
             self.latency_pub.set(latency * 1000, ntcore._now())
             self.tids_pub.set(tids, ntcore._now())
             self.pose_sub.set(poseToArray(primary_pose), ntcore._now())
+            self.areas_pub.set(areas, ntcore._now())
+            self.update_counter_pub.set(self.counter, ntcore._now())
+            self.counter += 1
         else:
             self.tids_pub.set([])
             self.pose_sub.set([])
-
-        self.update_counter_pub.set(self.counter, ntcore._now())
-        self.counter += 1
+            self.areas_pub.set([])
 
     def sendMsg(self, msg: str):
         self.msg_pub.set(msg)

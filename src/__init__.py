@@ -56,9 +56,10 @@ def main():
 
         fiducials, tids, all_corners = detector.detect(frame)
 
+        areas = []
         if tids is not None and all_corners is not None:
             frame = cv2.aruco.drawDetectedMarkers(frame, all_corners, tids)
-            tids = detector.orderIDs(all_corners, tids)
+            tids, areas = detector.orderIDs(all_corners, tids)
 
         tids, primary_pose = pose_estimator.process(fiducials, config)
 
@@ -69,7 +70,7 @@ def main():
         
         fpt = time.time() - fpt_start
 
-        publisher.send(fps, fpt, tids, primary_pose)
+        publisher.send(fps, fpt, tids, primary_pose, areas)
         stream.set_frame(frame)
 
 if __name__ == '__main__':

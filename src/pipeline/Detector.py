@@ -83,5 +83,6 @@ class FiducialDetector:
             outIDs.append(ids.pop(index))
 
         outIDs.reverse()
+        outAreas.reverse()
         
-        return numpy.asarray(outIDs)
+        return numpy.asarray(outIDs), outAreas
