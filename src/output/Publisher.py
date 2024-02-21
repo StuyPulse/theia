@@ -83,7 +83,7 @@ class NTPublisher:
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if latency is not None and tids is not None and primary_pose is not None and len(areas) > 0:
+        if latency is not None and tids is not None and primary_pose is not None and len(areas) > 0 and reprojection_error is not None:
             self.latency_pub.set(latency * 1000, ntcore._now())
             self.tids_pub.set(tids, ntcore._now())
             self.pose_sub.set(poseToArray(primary_pose), ntcore._now())

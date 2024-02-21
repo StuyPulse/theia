@@ -50,7 +50,7 @@ def main():
 
         if frame is None: 
             publisher.sendMsg("Camera not connected")
-            publisher.send(0, 0, None, None)
+            publisher.send(0, 0, None, None, [], None)
             capture.release()
             continue
 
