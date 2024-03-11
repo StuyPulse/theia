@@ -47,7 +47,7 @@ class NTPublisher:
     tids_pub: ntcore.IntegerArrayPublisher
     areas_pub: ntcore.DoubleArrayPublisher
     reprojection_error_pub: ntcore.DoublePublisher
-
+    
     msg_pub: ntcore.StringPublisher
     update_counter_pub: ntcore.IntegerPublisher
     counter: int

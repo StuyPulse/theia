@@ -1,0 +1,89 @@
+Documentation by Rahul Deb
+
+Files to look at:
+src/output/Publisher.py
+src/__init__.py
+src/pipeline/
+
+src/output/Publisher.py
+
+9:15 - Imports
+1) ntcore passes non-Driver station data to and from the robot across a network
+https://github.com/robotpy/pyntcore/tree/main
+2) Union represents objects that can be combined to obtain an ndarray
+https://numpy.org/devdocs/reference/typing.html
+3) Logging provides data as the code is running
+https://docs.python.org/3/library/logging.html
+4) Config allows us to connect to the camera and other information locally or remotely. 
+- LocalConfig states misallenous things + defines the camera matrix (mapping between 3D world and 2D image)and the distortion coefficient (used to correct the distortion). 
+- RemoteConfig provides information/settings about the camera.
+
+Self-note: Fiducial are AprilTags
+
+19:29 - 
+We define our functions and if they aren't implemented, we raise an exception
+
+31:39 - We convert the Pose3D to an array by getting the 3D translation and rotation values
+
+43:53 - Publishes data to the NetworkTable.
+Creating and publishing data:
+https://docs.wpilib.org/en/stable/docs/software/networktables/publish-and-subscribe.html
+Information published:
+- Frames per second
+- Latency
+- Translation vectors
+- Rotation vectors
+- the Ids
+- The areas
+- Checking for projection error
+
+All of this information is transferred together to the network (robot) -- a cloud
+
+55:62 (__init__ method) - Initializes the NetworkTable to default. It sets information about the server Ip, the client, creates the table, and starts logging.
+
+64:77 - Publishes information about fps, latency, tids, pose, areas, reprojection error, etc.
+It publishes information periodically and sets most items to their default value. 
+
+81:89 (send method) - 
+Takes in parameters of previously published items. Note: fps and latency are in a union with None, so a null value is possible for them.
+
+- If fps has a value, then set the publisher value to that
+- 
+
+??? 86:93
+
+- Else set the other item values to empty arrays.
+
+100:101 (sendMsg method) publishes the message (string)
+
+103:108 - Closes all publisher values to reset it.
+
+--------------------------------------
+src/__init__.py
+
+9:18 - Imports
+
+Imports the OpenCV and the time modules. 
+https://docs.opencv.org/4.x/index.html
+OpenCV is used for image processing. 
+https://docs.python.org/3/library/time.html
+
+Importing config, localConfig, remoteConfig (explained before).
+
+FileConfigManager configures the file where the data is logged.
+
+NTConfigManager configures/intializes the cameras in the NetworkTable.
+
+Annotate Fiducials.
+The Annotate class views the current image and draws cubes based on the given April Tag and maps the unique features (cubes) of the AprilTag It uses OpenCV to draw contours in order to draw up a shape.
+
+MJPG Server loads a website (HTML file) with information related to the image content.
+
+The NetworkPublisher is imported
+
+Part of Pipeline:
+1) The DefaultCapture is just information for the camera to run.
+
+2) FiducialDetector detects when a AprilTag is in sight.
+
+3) FiducialPoseEstimator ???
