@@ -13,11 +13,6 @@ numpy provides a wide variety of mathematical operations on arrays
 import cv2
 import numpy
 
-"""
-Config allows us to connect to the camera and other information locally or remotely.
-- LocalConfig sets up misallenous information
-- RemoteConfig sets up information about the camera
-"""
 from config.Config import Config
 
 class Annotate:

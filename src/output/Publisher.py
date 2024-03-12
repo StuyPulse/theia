@@ -16,11 +16,7 @@ import numpy.typing
 import logging
 from wpimath.geometry import *
 
-"""
-Config allows us to connect to the camera and other information locally or remotely.
-- LocalConfig sets up misallenous information
-- RemoteConfig sets up information about the camera
-"""
+
 from config.Config import Config
 
 class Publisher:
@@ -28,7 +24,7 @@ class Publisher:
     Initial definition of the functions.
     Raises exceptions if the functions are not implmented
     """
-    
+
     def __init__(self):
         raise NotImplementedError
 
