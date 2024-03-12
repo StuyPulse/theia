@@ -28,7 +28,7 @@ class Publisher:
     Initial definition of the functions.
     Raises exceptions if the functions are not implmented
     """
-
+    
     def __init__(self):
         raise NotImplementedError
 
