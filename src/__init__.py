@@ -70,7 +70,7 @@ def main():
         
         fpt = time.time() - fpt_start
 
-        publisher.send(fps, fpt, tids, primary_pose, areas, reprojection_error, all_corners)
+        publisher.send(fps, fpt, tids, primary_pose, areas, reprojection_error)
         stream.set_frame(frame)
 
 if __name__ == '__main__':

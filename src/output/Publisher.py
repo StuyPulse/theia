@@ -47,7 +47,6 @@ class NTPublisher:
     tids_pub: ntcore.IntegerArrayPublisher
     areas_pub: ntcore.DoubleArrayPublisher
     reprojection_error_pub: ntcore.DoublePublisher
-    all_corners_pub: ntcore.DoubleArrayPublisher
 
     msg_pub: ntcore.StringPublisher
     update_counter_pub: ntcore.IntegerPublisher
@@ -74,40 +73,29 @@ class NTPublisher:
         self.areas_pub.setDefault([])
         self.reprojection_error_pub = table.getDoubleTopic("reprojection_error").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.reprojection_error_pub.setDefault(0)
-        self.all_corners_pub = table.getDoubleArrayTopic("pixel_coords").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
-        self.all_corners_pub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
         self.update_counter_pub = table.getIntegerTopic("update_counter").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         
         self.counter = 0
 
-    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas, reprojection_error, all_corners):
-
-        tag_out = []
-
-        if all_corners is not None:
-            primary_tag = all_corners[0]
-
-            tag_out = [(primary_tag[0][0] + primary_tag[1][0]) / 2.0, (primary_tag[0][1] - primary_tag[2][1]) / 2.0]
+    def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas, reprojection_error):
 
         if fps is not None:
             self.fps_pub.set(fps)
 
-        if latency is not None and tids is not None and primary_pose is not None and len(areas) > 0 and reprojection_error is not None and all_corners is not None:
+        if latency is not None and tids is not None and primary_pose is not None and len(areas) > 0 and reprojection_error is not None:
             self.latency_pub.set(latency * 1000, ntcore._now())
             self.tids_pub.set(tids, ntcore._now())
             self.pose_sub.set(poseToArray(primary_pose), ntcore._now())
             self.areas_pub.set(areas, ntcore._now())
             self.update_counter_pub.set(self.counter, ntcore._now())
             self.reprojection_error_pub.set(reprojection_error, ntcore._now())
-            self.all_corners_pub.set(tag_out, ntcore._now())
             self.counter += 1
         else:
             self.tids_pub.set([])
             self.pose_sub.set([])
             self.areas_pub.set([])
             self.reprojection_error_pub.set(0)
-            self.all_corners_pub.set([])
 
     def sendMsg(self, msg: str):
         self.msg_pub.set(msg)
@@ -118,6 +106,3 @@ class NTPublisher:
         self.pose_sub.close()
         self.msg_pub.close()
         self.update_counter_pub.close()
-        self.areas_pub.close()
-        self.reprojection_error_pub.close()
-        self.all_corners_pub.close()
