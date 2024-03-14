@@ -75,7 +75,7 @@ class NTPublisher:
         self.reprojection_error_pub = table.getDoubleTopic("reprojection_error").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         self.reprojection_error_pub.setDefault(0)
         self.all_corners_pub = table.getDoubleArrayTopic("pixel_coords").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
-        self.all_corners_pub.setDefault(0)
+        self.all_corners_pub.setDefault([])
         self.msg_pub = table.getStringTopic("_msg").publish()
         self.update_counter_pub = table.getIntegerTopic("update_counter").publish(ntcore.PubSubOptions(keepDuplicates=True, periodic=0.02))
         
@@ -83,9 +83,12 @@ class NTPublisher:
 
     def send(self, fps: Union[float, None], latency: Union[float, None], tids, primary_pose, areas, reprojection_error, all_corners):
 
-        primary_tag = all_corners[0]
+        tag_out = []
 
-        tag_out = [(primary_tag[0][0] + primary_tag[1][0]) / 2.0, (primary_tag[0][1] - primary_tag[2][1]) / 2.0]
+        if all_corners is not None:
+            primary_tag = all_corners[0]
+
+            tag_out = [(primary_tag[0][0] + primary_tag[1][0]) / 2.0, (primary_tag[0][1] - primary_tag[2][1]) / 2.0]
 
         if fps is not None:
             self.fps_pub.set(fps)
