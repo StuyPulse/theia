@@ -1,5 +1,5 @@
 {
-    "device_name": "default",
+    "device_name": "shooter_camera",
     "team_number": 694,
     "stream_port": 5802,
     "calibrated": true,

@@ -135,7 +135,7 @@ class FiducialPoseEstimator(PoseEstimator):
                 _, rvecs, tvecs, errors = cv2.solvePnPGeneric(numpy.array(object_points), numpy.array(image_points),
                                                               self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
             except:
-                return (None, None)
+                return (None, None, None)
 
             # Calculate WPILib camera pose
             camera_to_field_pose = cvtowpi(tvecs[0], rvecs[0])
