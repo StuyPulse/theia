@@ -60,6 +60,7 @@ class FiducialPoseEstimator(PoseEstimator):
         image_points = []
         tag_ids = []
         tag_poses = []
+        poses = []
 
         tag_layout = config.remote.fiducial_layout
         fid_size = config.remote.fiducial_size
@@ -99,7 +100,7 @@ class FiducialPoseEstimator(PoseEstimator):
                 tag_ids += [tid]
                 tag_poses += [tag_pose]
 
-        if len(tag_ids) == 1:
+        for i in range(len(tag_ids)):
             object_points = numpy.array([[-fid_size / 2.0, fid_size / 2.0, 0.0],
                                          [fid_size / 2.0, fid_size / 2.0, 0.0],
                                          [fid_size / 2.0, -fid_size / 2.0, 0.0],
@@ -121,26 +122,21 @@ class FiducialPoseEstimator(PoseEstimator):
             field_to_camera_pose_0 = Pose3d(field_to_camera_0.translation(), field_to_camera_0.rotation())
             field_to_camera_pose_1 = Pose3d(field_to_camera_1.translation(), field_to_camera_1.rotation())
 
+            # poses.append([[field_to_camera_pose_0.x, field_to_camera_pose_0.y, field_to_camera_pose_0.z, field_to_camera_pose_0.rotation().x, field_to_camera_pose_0.rotation().y, field_to_camera_pose_0.rotation().z], errors[0][0]])
+
             if errors[0][0] < errors[1][0] * 0.15: 
-                return (tag_ids, field_to_camera_pose_0, errors[0][0])
+                poses.append([[field_to_camera_pose_0.x, field_to_camera_pose_0.y, field_to_camera_pose_0.z, field_to_camera_pose_0.rotation().x, field_to_camera_pose_0.rotation().y, field_to_camera_pose_0.rotation().z], errors[0][0]])
             if errors[1][0] < errors[0][0] * 0.15: 
-                return (tag_ids, field_to_camera_pose_1, errors[1][0])
-            
-            return (None, None, None)
+                poses.append([[field_to_camera_pose_1.x, field_to_camera_pose_1.y, field_to_camera_pose_1.z, field_to_camera_pose_1.rotation().x, field_to_camera_pose_1.rotation().y, field_to_camera_pose_1.rotation().z], errors[1][0]])
         
-        # Multi-tag, return one pose
-        else:
-            # Run SolvePNP with all tags
-            try:
-                _, rvecs, tvecs, errors = cv2.solvePnPGeneric(numpy.array(object_points), numpy.array(image_points),
-                                                              self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
-            except:
-                return (None, None, None)
+        if len(poses) == 0: return (None, None, None)
 
-            # Calculate WPILib camera pose
-            camera_to_field_pose = cvtowpi(tvecs[0], rvecs[0])
-            camera_to_field = Transform3d(camera_to_field_pose.translation(), camera_to_field_pose.rotation())
-            field_to_camera = camera_to_field.inverse()
-            field_to_camera_pose = Pose3d(field_to_camera.translation(), field_to_camera.rotation())
+        final_pose = poses[0]
 
-            return (tag_ids, field_to_camera_pose, errors[0][0])
+        for pose in range(len(poses) - 1):
+            for i in range(6):
+                final_pose[0][i] = (final_pose[0][i] + poses[pose + 1][0][i]) / 2
+            final_pose[1] = (final_pose[1] + poses[pose + 1][1]) / 2
+        
+        return (tag_ids, Pose3d(final_pose[0][0], final_pose[0][1], final_pose[0][2], Rotation3d(final_pose[0][3], final_pose[0][4], final_pose[0][5])), final_pose[1])
+
