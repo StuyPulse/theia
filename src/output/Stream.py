@@ -78,9 +78,9 @@ class MJPGServer(StreamServer):
                 elif self.path == "/stream.mjpg":
                     self.send_response(200)
                     self.send_header("Age", "0")
-                    self.send_header("Cache-Control", "no-cache, private")
+                    self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0")
                     self.send_header("Pragma", "no-cache")
-                    self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=FRAME")
+                    self.send_header("Content-Type", "multipart/x-mixed-replace;boundary=FRAME")
                     self.end_headers()
                     try:
                         while True:
@@ -93,7 +93,7 @@ class MJPGServer(StreamServer):
                                 frame_data = stream.getvalue()
 
                                 self.wfile.write(b"--FRAME\r\n")
-                                self.send_header("Content-Type", "image/jpeg")
+                                self.send_header("Content-Type", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
                                 self.send_header("Content-Length", str(len(frame_data)))
                                 self.end_headers()
                                 self.wfile.write(frame_data)
