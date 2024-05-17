@@ -121,12 +121,14 @@ class FiducialPoseEstimator(PoseEstimator):
             field_to_camera_pose_0 = Pose3d(field_to_camera_0.translation(), field_to_camera_0.rotation())
             field_to_camera_pose_1 = Pose3d(field_to_camera_1.translation(), field_to_camera_1.rotation())
 
-            if errors[0][0] < errors[1][0] * 0.15: 
-                return (tag_ids, field_to_camera_pose_0, errors[0][0])
-            if errors[1][0] < errors[0][0] * 0.15: 
-                return (tag_ids, field_to_camera_pose_1, errors[1][0])
+            return (tag_ids, field_to_camera_pose_0, errors[0][0])
+
+            # if errors[0][0] < errors[1][0] * 0.15: 
+            #     return (tag_ids, field_to_camera_pose_0, errors[0][0])
+            # if errors[1][0] < errors[0][0] * 0.15: 
+            #     return (tag_ids, field_to_camera_pose_1, errors[1][0])
             
-            return (None, None, None)
+            # return (None, None, None)
         
         # Multi-tag, return one pose
         else:
@@ -135,7 +137,7 @@ class FiducialPoseEstimator(PoseEstimator):
                 _, rvecs, tvecs, errors = cv2.solvePnPGeneric(numpy.array(object_points), numpy.array(image_points),
                                                               self.camera_matrix, self.distortion_coefficient, flags=cv2.SOLVEPNP_SQPNP)
             except:
-                return (None, None)
+                return (None, None, None)
 
             # Calculate WPILib camera pose
             camera_to_field_pose = cvtowpi(tvecs[0], rvecs[0])
